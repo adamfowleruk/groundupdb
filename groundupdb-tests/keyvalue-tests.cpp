@@ -8,7 +8,7 @@ TEST_CASE("Store and retrieve a value","[setKeyValue,getKeyValue]") {
   //   [Who]   As a database user
   //   [What]  I need to store and retrieve a value with a simple name
   //   [Value] So I can persist data for later use
-  SECTION("Basei set and get") {
+  SECTION("Basic set and get") {
     std::string dbname("myemptydb");
     Database db(GroundUpDB::createEmptyDB(dbname));
 
