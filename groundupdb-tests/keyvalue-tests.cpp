@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "groundupdb.h"
+#include "groundupdb/groundupdb.h"
 
 TEST_CASE("Store and retrieve a value","[setKeyValue,getKeyValue]") {
 

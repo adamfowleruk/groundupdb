@@ -1,6 +1,6 @@
 #include <iostream>
 #include "cxxopts.hpp"
-#include "groundupdb.h"
+#include "groundupdb/groundupdb.h"
 using namespace std;
 
 cxxopts::Options options("groundupdb-cli","CLI for GroundUpDB");
