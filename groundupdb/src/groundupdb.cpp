@@ -1,5 +1,7 @@
 #include "groundupdb.h"
 
+using namespace groundupdb;
+
 GroundUpDB::GroundUpDB()
 {
 }

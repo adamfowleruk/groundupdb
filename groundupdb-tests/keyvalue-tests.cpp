@@ -10,7 +10,7 @@ TEST_CASE("Store and retrieve a value","[setKeyValue,getKeyValue]") {
   //   [Value] So I can persist data for later use
   SECTION("Basic set and get") {
     std::string dbname("myemptydb");
-    Database db(GroundUpDB::createEmptyDB(dbname));
+    groundupdb::Database db(groundupdb::GroundUpDB::createEmptyDB(dbname));
 
     // We know we have been successful when:-
     // 1. The retrieved value is the same as the stored value

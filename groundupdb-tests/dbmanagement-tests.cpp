@@ -16,7 +16,7 @@ TEST_CASE("Create a new empty database","[createEmptyDB]") {
 
     SECTION("Default settings") {
         std::string dbname("myemptydb");
-        Database db(GroundUpDB::createEmptyDB(dbname));
+        groundupdb::Database db(groundupdb::GroundUpDB::createEmptyDB(dbname));
 
         // We know we have been successful when:-
         // 1. We have a valid database reference returned
@@ -44,9 +44,9 @@ TEST_CASE("Load an existing database","[loadDB]") {
 
     SECTION("Default settings") {
         std::string dbname("myemptydb");
-        Database db(GroundUpDB::createEmptyDB(dbname));
+        groundupdb::Database db(groundupdb::GroundUpDB::createEmptyDB(dbname));
 
-        Database db2(GroundUpDB::loadDB(dbname));
+        groundupdb::Database db2(groundupdb::GroundUpDB::loadDB(dbname));
 
         // We know we have been successful when:-
         // 1. We have a valid database reference returned

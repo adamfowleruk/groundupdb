@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace groundupdb {
+
 class Database
 {
 public:
@@ -24,5 +26,7 @@ protected:
     std::string m_fullpath;
     // TODO std::pointer<DatabaseImpl> pImpl; // C++11 PIMPL IDIOM for forward binary compatibility
 };
+
+}
 
 #endif // DATABASE_H

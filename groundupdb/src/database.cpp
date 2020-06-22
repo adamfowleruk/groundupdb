@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+using namespace groundupdb;
+
 Database::Database(std::string dbname,std::string fullpath)
   : m_name(dbname), m_fullpath(fullpath)
 {
