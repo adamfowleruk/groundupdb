@@ -1,7 +1,9 @@
 #include <iostream>
 #include "cxxopts.hpp"
-#include "groundupdb.h"
+#include "groundupdb/groundupdb.h"
 using namespace std;
+
+using namespace groundupdb;
 
 cxxopts::Options options("groundupdb-cli","CLI for GroundUpDB");
 
@@ -31,7 +33,7 @@ int main(int argc, char* argv[]) {
       }
       // create database
       std::string dbname(result["n"].as<std::string>());
-      Database db(GroundUpDB::createEmptyDB(dbname));
+      std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::createEmptyDB(dbname));
       return 0;
     }
     if (result.count("d") == 1) {
@@ -42,8 +44,8 @@ int main(int argc, char* argv[]) {
         }
         // destroy database
         std::string dbname(result["n"].as<std::string>());
-        Database db(GroundUpDB::loadDB(dbname));
-        db.destroy();
+        std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
+        db->destroy();
         return 0;
     }
     if (result.count("s") == 1) {
@@ -66,8 +68,8 @@ int main(int argc, char* argv[]) {
         std::string dbname(result["n"].as<std::string>());
         std::string k(result["k"].as<std::string>());
         std::string v(result["v"].as<std::string>());
-        Database db(GroundUpDB::loadDB(dbname));
-        db.setKeyValue(k,v);
+        std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
+        db->setKeyValue(k,v);
         return 0;
     }
     if (result.count("g") == 1) {
@@ -84,8 +86,8 @@ int main(int argc, char* argv[]) {
         // Get key value from database
         std::string dbname(result["n"].as<std::string>());
         std::string k(result["k"].as<std::string>());
-        Database db(GroundUpDB::loadDB(dbname));
-        cout << db.getKeyValue(k) << endl;
+        std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
+        cout << db->getKeyValue(k) << endl;
         return 0;
     }
 
