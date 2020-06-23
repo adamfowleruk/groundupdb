@@ -3,7 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
     groundupdb \
     groundupdb-cli \
-    groundupdb-tests
+    groundupdb-tests \
+    samples/003a-hashing-benefits
 
 groundupdb-tests.depends = groundupdb
 groundupdb-cli.depends = groundupdb
