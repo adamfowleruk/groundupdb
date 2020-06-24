@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <unordered_map>
 
 namespace fs = std::filesystem;
 
@@ -30,14 +31,37 @@ public:
 private:
   std::string m_name;
   std::string m_fullpath;
-  // 1. add an in-memory map here
+  std::unordered_map<std::string,std::string>  m_keyValueStore;
 };
 
 EmbeddedDatabase::Impl::Impl(std::string dbname, std::string fullpath)
   : m_name(dbname), m_fullpath(fullpath)
 {
-  ;
-  // 2. load all keys from disc to our map here
+  // load any files with .kv in their name
+  for (auto& p : fs::directory_iterator(getDirectory())) {
+    if (p.exists() && p.is_regular_file()) {
+      // check if extension is .kv
+      if(".kv" == p.path().extension()) {
+        // If so, open file
+
+        std::string keyWithString = p.path().filename();
+        // ASSUMPTION always ends with _string.kv
+        std::string key = keyWithString.substr(0,keyWithString.length() - 10); // DANGEROUS!!!
+
+        std::ifstream t(p.path());
+        std::string value;
+
+        t.seekg(0, std::ios::end);
+        value.reserve(t.tellg());
+        t.seekg(0, std::ios::beg);
+
+        value.assign((std::istreambuf_iterator<char>(t)),
+                      std::istreambuf_iterator<char>());
+
+        m_keyValueStore.insert({key,value});
+      }
+    }
+  }
 }
 
 EmbeddedDatabase::Impl::~Impl() {
@@ -69,7 +93,7 @@ void EmbeddedDatabase::Impl::destroy() {
   if (fs::exists(m_fullpath)) {
       fs::remove_all(m_fullpath);
   }
-  // 3. Don't forget to empty our in memory map too!
+  m_keyValueStore.clear();
 }
 
 // Instance users functions
@@ -83,7 +107,8 @@ void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::string value) {
   os.open(m_fullpath + "/" + key + "_string.kv", std::ios::out | std::ios::trunc);
   os << value;
   os.close();
-  // 4. Also write to our in-memory map
+  // Also write to our in-memory unordered map
+  m_keyValueStore.insert({key,value});
 
   // QUESTION: What is the above storage mechanism paradigm?
   //   ANSWER: Strongly Consistent (we may lose some data due to fsync delay
@@ -93,8 +118,14 @@ void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::string value) {
 }
 
 std::string EmbeddedDatabase::Impl::getKeyValue(std::string key) {
-  // 5. only ever read from our in memory map!
+  // Only ever read from our in memory map!
+  const auto& v = m_keyValueStore.find(key);
+  if (v == m_keyValueStore.end()) {
+    return ""; // DANGEROUS! Should be 'not found'. TODO error handling.
+  }
+  return v->second;
 
+  /*
   std::ifstream t(m_fullpath + "/" + key + "_string.kv");
   std::string value;
   //t >> value;
@@ -108,6 +139,7 @@ std::string EmbeddedDatabase::Impl::getKeyValue(std::string key) {
                 std::istreambuf_iterator<char>());
 
   return value;
+  */
 }
 
 
@@ -135,7 +167,7 @@ std::string EmbeddedDatabase::Impl::getKeyValue(std::string key) {
 //   ANSWER: Store raw key names and values on disc, not memory, and lazily load them
 //           through indexing by hashes only (i.e. in memory we store key hash -> value hash)
 // QUESTION: What are the drawbacks?
-//   ANSWER: Hash colissions!
+//   ANSWER: Hash collisions!
 
 
 // High level Database client API implementation below
