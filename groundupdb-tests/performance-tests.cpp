@@ -36,4 +36,6 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     // 7. Tear down
     db->destroy();
   }
+
+  // Now do the same for pure disc backed storage
 }

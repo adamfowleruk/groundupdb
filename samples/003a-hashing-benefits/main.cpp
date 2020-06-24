@@ -114,7 +114,7 @@ Retrieval by index: Time difference = 935[ns]
   // QUESTION: If we hash the name and use this hash value as the index, could we improve things?
   //   ANSWER: Probably, yes
   //    QUESTION: Could the calculation of the hash take longer than retrieval of the value by name? What does this imply?
-  //      ANSWER: Possibly, if not many keys or key names were all short. This means it will be slower thank by name! ;o(
+  //      ANSWER: Possibly, if not many keys or key names were all short. This means it will be slower than by name! ;o(
 
 
 
@@ -183,10 +183,49 @@ Retrieve from Map: Time difference = 1236[ns]
   // CONCLUSIONS???
 
   // QUESTION: How did storage speeds compare amongst the two mechanisms?
-  //   ANSWER: 3 times slower! 103ms vs 34ms
+  //   ANSWER: Hash method is 3 times slower! 103ms vs 34ms. "I thought you said this would be BETTER to use!?!" (well...)
   // QUESTION: How did retrieval speeds compare against the three mechanisms (fetch by name, by index (pre-computed hash), and by hash)?
   //   ANSWER: name: 4351301ns, index: 935ns, hash: 1249ns
   //           i.e. Retrieval was 1/3483 the time vs by name, but 1.33 times longer than a raw index
   //           BUT raw C++ in memory indexes are the quickest you're going to get - seek to memory location
+  //            - You can't guarantee a large chunk of contiguous memory is given to your database server as
+  //              most Operating Systems randomise memory locations for security, so you can't use raw memory.
   //           CONCLUSION: Hash based map implementations are insanely quick - we should totally use hashes and in-memory unordered maps
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BONUS QUESTION: Why is rand() not random?
+//         ANSWER: https://stackoverflow.com/questions/28656004/c-random-doesnt-workreturns-same-value-always
+//                 Really, you need to use an implementation that uses modern processors'
+//                 secure random instruction set.
