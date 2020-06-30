@@ -12,7 +12,7 @@ int main()
   char* buffer;
   int bufferLength = 32;
 
-  int storeSize = 65000; // Number of records in our 'database'
+  const int storeSize = 65000; // Number of records in our 'database'
 
 
 
