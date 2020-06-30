@@ -1,7 +1,7 @@
 #ifndef EXTDATABASE_H
 #define EXTDATABASE_H
 
-#include "database.h"
+#include "groundupdb/database.h"
 
 namespace groundupdbext {
 

@@ -1,5 +1,5 @@
-#include "database.h"
-#include "extensions/extdatabase.h"
+#include "groundupdb/database.h"
+#include "groundupdb/extensions/extdatabase.h"
 
 #include <iostream>
 #include <fstream>
@@ -44,7 +44,7 @@ EmbeddedDatabase::Impl::Impl(std::string dbname, std::string fullpath)
       if(".kv" == p.path().extension()) {
         // If so, open file
 
-        std::string keyWithString = p.path().filename();
+        std::string keyWithString = p.path().filename().string();
         // ASSUMPTION always ends with _string.kv
         std::string key = keyWithString.substr(0,keyWithString.length() - 10); // DANGEROUS!!!
 

@@ -1,5 +1,5 @@
-#include "groundupdb.h"
-#include "extensions/extdatabase.h"
+#include "groundupdb/groundupdb.h"
+#include "groundupdb/extensions/extdatabase.h"
 
 using namespace groundupdb;
 using namespace groundupdbext;

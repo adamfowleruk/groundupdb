@@ -6,7 +6,7 @@
 // WARNING: This should ONLY include Client API files
 // i.e. NOT anything within include/extensions!
 
-#include "database.h"
+#include "groundupdb/database.h"
 
 namespace groundupdb {
 
