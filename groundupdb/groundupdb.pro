@@ -20,10 +20,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     src/database.cpp \
-    src/groundupdb.cpp
+    src/filekeyvaluestore.cpp \
+    src/groundupdb.cpp \
+    src/memorykeyvaluestore.cpp
 
 HEADERS += \
     groundupdb.h \
+    groundupdbext.h \
     include/database.h \
     include/extensions/extdatabase.h \
     include/groundupdb.h
