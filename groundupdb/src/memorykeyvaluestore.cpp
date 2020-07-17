@@ -1,4 +1,5 @@
 #include "extensions/extdatabase.h"
+#include "extensions/highwayhash.h"
 
 #include <unordered_map>
 
@@ -9,7 +10,7 @@ public:
   Impl();
   Impl(std::unique_ptr<KeyValueStore>& toCache);
 
-  std::unordered_map<std::string,std::string>  m_keyValueStore;
+  std::unordered_map<std::string,std::string,HighwayHash> m_keyValueStore;
   std::optional<std::unique_ptr<KeyValueStore>> m_cachedStore;
 
 private:

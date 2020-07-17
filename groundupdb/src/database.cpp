@@ -7,30 +7,6 @@ using namespace groundupdb;
 using namespace groundupdbext;
 
 namespace fs = std::filesystem;
-/*
-// 'Hidden' store Impl class
-class Store::Impl {
-public:
-  Impl();
-private:
-};
-
-Store::Impl::Impl() {
-  ;
-}
-
-// 'Hidden' key value store Impl class
-class KeyValueStore::Impl {
-public:
-  Impl();
-private:
-};
-
-KeyValueStore::Impl::Impl() {
-  ;
-}
-*/
-
 
 // 'Hidden' Database::Impl class here
 class EmbeddedDatabase::Impl : public IDatabase {

@@ -21,4 +21,13 @@ TEST_CASE("Store and retrieve a value","[setKeyValue,getKeyValue]") {
 
     db->destroy();
   }
+
+  //   [Who]   As a database user
+  //   [What]  I want to be able to logically segment my data
+  //   [Value] To make storage, querying, retrieval, backups and restores easier and quicker
+  SECTION("Bucketed set and get") {
+
+  }
+
+
 }

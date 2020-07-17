@@ -22,6 +22,7 @@ SOURCES += \
     src/database.cpp \
     src/filekeyvaluestore.cpp \
     src/groundupdb.cpp \
+    src/highwayhash.cpp \
     src/memorykeyvaluestore.cpp
 
 HEADERS += \
@@ -29,9 +30,14 @@ HEADERS += \
     groundupdbext.h \
     include/database.h \
     include/extensions/extdatabase.h \
+    include/extensions/highwayhash.h \
     include/groundupdb.h
 
-INCLUDEPATH += include
+HH = ../../highwayhash
+
+INCLUDEPATH += include $${HH}
+
+LIBS += -L$${HH}/lib -lhighwayhash
 
 # Default rules for deployment.
 unix {

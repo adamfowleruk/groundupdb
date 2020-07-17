@@ -7,6 +7,7 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 
 SOURCES += \
         dbmanagement-tests.cpp \
+        hashing-tests.cpp \
         keyvalue-tests.cpp \
         performance-tests.cpp
 
@@ -18,3 +19,7 @@ else:macx:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../groundupdb/ -lgro
 HEADERS += \
     catch.hpp \
     tests.h
+
+HH = ../../highwayhash
+
+INCLUDEPATH += include $${HH}
