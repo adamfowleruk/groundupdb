@@ -1,0 +1,31 @@
+GroundUpDB
+Copyright 2020 Adam Fowler
+
+The name GroundUpDB or derivatives of it, and the GroundUpDB trademark and logo may only be used as specified by the licensor. No grant of use is provided to any derivative work or project that uses GroundUpDB unless stated below.
+
+Permission to use the phrase 'Powered by GroundUpDB' and the powered by GroundUpDB logo are hereby granted to non-commercial, open source projects only or to ISVs building application software (not providing a service (E.g. SaaS or subscription or license based software), or database software).
+
+THIRD PARTY DEPENDENCIES
+
+This product includes software developed externally as follows.
+
+BUILD / TEST TIME DEPENDENCIES
+
+This project repository contains two header only files with their own
+licenses for convenience of the programmer. These are:-
+
+- groundupdb-cli/cxxopts.hpp - C++ command line options parser. 
+Copyright (c) 2014, 2015, 2016, 2017 Jarryd Beck.
+MIT licensed
+- groundupdb-tests/catch.hpp - C++ TDD library. 
+Copyright (c) 2020 Two Blue Cubes Ltd. All rights reserved.
+Boost 1.0 license
+
+RUN TIME DEPENDENCIES
+
+Licenses of external libraries not included as source in this repo, that GroundUpDB depends on:-
+
+- ../highwayhash/highwayhash/highwayhash.h (External library)- Google's Highway Hash imeplementation. Copyright holder unknown (not specified in their license file). Apache 2.0 licensed.
+
+Note: Not all of the above components may always be in use in the final built product, depending on which components you wish to use.
+

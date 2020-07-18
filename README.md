@@ -2,7 +2,7 @@
 
 Creating a database from the ground up in C++ for fun!
 
-GroundUpDB is an MIT licensed open source database. It is being created in the 
+GroundUpDB is an Apache 2.0 licensed open source database. It is being created in the 
 open as part of a video blog live coding series on database design and
 modern C++ by Adam Fowler. @adamfowleruk
 
@@ -65,17 +65,9 @@ to send me nice things on Patreon https://www.patreon.com/adamfowleruk then I'll
 ## License & Copyright
 
 All works are copyright Adam Fowler 2020 unless otherwise stated. Code is
-licensed under the MIT license unless otherwise stated.
+licensed under the Apache 2.0 license unless otherwise stated.
 
-This project repository contains two header only files with their own
-licenses for convenience of the programmer. These are:-
-
-- groundupdb-cli/cxxopts.hpp - C++ command line options parser. 
-Copyright (c) 2014, 2015, 2016, 2017 Jarryd Beck.
-MIT licensed
-- groundupdb-tests/catch.hpp - C++ TDD library. 
-Copyright (c) 2020 Two Blue Cubes Ltd. All rights reserved.
-Boost 1.0 license
+See the NOTICE file for details on dependencies and their licenses.
 
 Thank you to these awesome open source developers for their work!
 As programmers we stand on the shoulder of giants!
