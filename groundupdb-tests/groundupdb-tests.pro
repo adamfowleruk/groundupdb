@@ -5,6 +5,8 @@ CONFIG -= qt
 
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 
+QMAKE_CXXFLAGS += -O2 -fPIC
+
 SOURCES += \
         dbmanagement-tests.cpp \
         hashing-tests.cpp \

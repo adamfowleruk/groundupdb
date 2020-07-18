@@ -5,3 +5,5 @@ CONFIG -= qt
 
 SOURCES += \
         main.cpp
+
+QMAKE_CXXFLAGS += -O2 -fPIC
