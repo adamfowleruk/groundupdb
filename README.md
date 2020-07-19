@@ -26,10 +26,52 @@ The database is still young, but I hope to have a proof of concept on a multi-mo
 
 ## Getting started
 
+You can either build with CMake or QtCreator. Either way executable and library files will be found under the relevant subdirectories for each target within the build folder.
+
+### Building withCMake
+
+```sh
+cd groundupdb
+cmake --build ./build --config Debug --target all -- -j 14
+cd build
+```
+
+### Building with QtCreator
+
 Download QtCreator for your platform, clone the repo, and open the main 
 groundupdb.pro project file in QtCreator. You can build the whole project
-from here. Best to start with the command line interface (CLI) called
+from here. 
+
+```sh
+cd ../build*
+```
+
+### Using the Command Line Interface (CLI)
+
+Best to start with the command line interface (CLI) called
 `groundupdb-cli`.
+
+```sh
+cd groundupdb-cli
+# Create a database
+./groundupdb-cli -n mydb -c
+# Set a key
+./groundupdb-cli -n mydb -s -k "My key" -v "My amazing value"
+# Get a key
+./groundupdb-cli -n mydb -s -k "My key"
+> My amazing value
+# List CLI usage and all other commands
+./groundupdb-cli
+```
+
+### Running the tests
+
+There are a range of functional and performance benchmark tests included. Run them with this command from your build output folder:-
+
+```sh
+cd groundupdb-tests
+./groundupdb-tests
+```
 
 ## Features
 
