@@ -36,9 +36,11 @@ int main(int argc, char* argv[]) {
       ("d,destroy", "Destroy a DB")
       ("s,set", "Set a key in a DB")
       ("g,get", "Get a key from a DB")
+      ("q,query", "Query the DB (must also specify a query term. E.g. b for bucket)")
       ("n,name","Database name (required)", cxxopts::value<std::string>())
       ("k,key","Key to set/get", cxxopts::value<std::string>())
       ("v,value","Value to set", cxxopts::value<std::string>())
+      ("b,bucket","Bucket stored in", cxxopts::value<std::string>())
     ;
     auto result = options.parse(argc, argv);
 
@@ -86,7 +88,12 @@ int main(int argc, char* argv[]) {
         std::string k(result["k"].as<std::string>());
         std::string v(result["v"].as<std::string>());
         std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
-        db->setKeyValue(k,v);
+        if (result.count("b") == 1) {
+          std::string b(result["b"].as<std::string>());
+          db->setKeyValue(k,v,b);
+        } else {
+          db->setKeyValue(k,v);
+        }
         return 0;
     }
     if (result.count("g") == 1) {
@@ -105,6 +112,29 @@ int main(int argc, char* argv[]) {
         std::string k(result["k"].as<std::string>());
         std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
         cout << db->getKeyValue(k) << endl;
+        return 0;
+    }
+    if (result.count("q") == 1) {
+        if (result.count("n") == 0) {
+            cout << "You must specify a database name with -n <name>" << endl;
+            printUsage();
+            return 1;
+        }
+        if (result.count("b") == 0) {
+          cout << "You must specify a bucket name with -b <name>" << endl;
+          printUsage();
+          return 1;
+        }
+        std::string dbname(result["n"].as<std::string>());
+        std::string b(result["b"].as<std::string>());
+        std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
+        groundupdb::BucketQuery bq(b);
+        std::unique_ptr<groundupdb::IQueryResult> res = db->query(bq);
+        std::unique_ptr<std::unordered_set<std::string>> recordKeys(res->recordKeys());
+        //cout << recordKeys.get()->size() << endl;
+        for (auto it = recordKeys.get()->begin(); it != recordKeys.get()->end();it++) {
+          cout << (*it) << endl;
+        }
         return 0;
     }
 

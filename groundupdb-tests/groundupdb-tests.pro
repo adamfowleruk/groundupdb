@@ -11,7 +11,8 @@ SOURCES += \
         dbmanagement-tests.cpp \
         hashing-tests.cpp \
         keyvalue-tests.cpp \
-        performance-tests.cpp
+        performance-tests.cpp \
+        query-tests.cpp
 
 include(../groundupdb/Defines.pri)
 

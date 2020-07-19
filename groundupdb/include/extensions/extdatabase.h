@@ -35,12 +35,15 @@ public:
   ~MemoryKeyValueStore();
 
   // Key-Value user functions
-  void                        setKeyValue(std::string key,std::string value);
-  std::string                 getKeyValue(std::string key);
+  void                            setKeyValue(std::string key,std::string value);
+  void                            setKeyValue(std::string key,std::string value, std::string bucket);
+  std::string                     getKeyValue(std::string key);
+  void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
+  std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
 
   // Key-value management functions
-  void                        loadKeysInto(std::function<void(std::string key,std::string value)> callback);
-  void                        clear();
+  void                            loadKeysInto(std::function<void(std::string key,std::string value)> callback);
+  void                            clear();
 
 private:
   class Impl;
@@ -53,11 +56,14 @@ public:
   ~FileKeyValueStore();
 
   // Key-Value use cases
-  void                        setKeyValue(std::string key,std::string value);
-  std::string                 getKeyValue(std::string key);
+  void                            setKeyValue(std::string key,std::string value);
+  void                            setKeyValue(std::string key,std::string value, std::string bucket);
+  std::string                     getKeyValue(std::string key);
+  void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
+  std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
 
-  void                        loadKeysInto(std::function<void(std::string key,std::string value)> callback);
-  void                        clear();
+  void                            loadKeysInto(std::function<void(std::string key,std::string value)> callback);
+  void                            clear();
 
 private:
   class Impl;
@@ -71,11 +77,18 @@ public:
                    std::unique_ptr<KeyValueStore>& kvStore);
   ~EmbeddedDatabase();
 
-  std::string                 getDirectory(void);
+  std::string                                 getDirectory(void);
 
   // Key-Value use cases
-  void                        setKeyValue(std::string key,std::string value);
-  std::string                 getKeyValue(std::string key);
+  void                                        setKeyValue(std::string key,std::string value);
+  void                                        setKeyValue(std::string key,std::string value, std::string bucket);
+  std::string                                 getKeyValue(std::string key);
+  void                                        setKeyValue(std::string key,std::unordered_set<std::string> value);
+  std::unique_ptr<std::unordered_set<std::string>>             getKeyValueSet(std::string key);
+
+  // Query records functions
+  std::unique_ptr<IQueryResult>                query(Query& query) const;
+  std::unique_ptr<IQueryResult>                query(BucketQuery& query) const = 0;
 
   // management functions
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname);

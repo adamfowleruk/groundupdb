@@ -15,29 +15,44 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-#ifndef GROUNDUPDB_H
-#define GROUNDUPDB_H
+#ifndef QUERY_H
+#define QUERY_H
 
 #include <string>
-
-// WARNING: This should ONLY include Client API files
-// i.e. NOT anything within include/extensions!
-
-#include "database.h"
-#include "query.h"
+#include <unordered_set>
 
 namespace groundupdb {
 
-class GroundUpDB
-{
+// Tagging class for now
+class Query {
 public:
-  GroundUpDB();
+  Query() = default;
+  virtual ~Query() = default;
+private:
+};
 
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname);
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore);
-  static std::unique_ptr<IDatabase> loadDB(std::string& dbname);
+using Set = std::unique_ptr<std::unordered_set<std::string>>;
+
+class IQueryResult {
+public:
+  IQueryResult() = default;
+  virtual ~IQueryResult() = default;
+
+  virtual const Set recordKeys() = 0;
+};
+
+// MARK: Query Implementation Types
+
+class BucketQuery : public Query {
+public:
+  BucketQuery(std::string& bucket);
+  virtual ~BucketQuery();
+
+  virtual std::string bucket() const;
+private:
+  class Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 }
-
-#endif // GROUNDUPDB_H
+#endif // QUERY_H
