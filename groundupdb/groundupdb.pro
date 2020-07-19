@@ -13,6 +13,8 @@ QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.15
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
+QMAKE_CXXFLAGS += -O2 -fPIC
+
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -22,16 +24,25 @@ SOURCES += \
     src/database.cpp \
     src/filekeyvaluestore.cpp \
     src/groundupdb.cpp \
-    src/memorykeyvaluestore.cpp
+    src/highwayhash.cpp \
+    src/memorykeyvaluestore.cpp \
+    src/query.cpp
 
 HEADERS += \
     groundupdb.h \
     groundupdbext.h \
     include/database.h \
     include/extensions/extdatabase.h \
-    include/groundupdb.h
+    include/extensions/extquery.h \
+    include/extensions/highwayhash.h \
+    include/groundupdb.h \
+    include/query.h
 
-INCLUDEPATH += include
+HH = ../../highwayhash
+
+INCLUDEPATH += include $${HH}
+
+LIBS += -L$${HH}/lib -lhighwayhash
 
 # Default rules for deployment.
 unix {

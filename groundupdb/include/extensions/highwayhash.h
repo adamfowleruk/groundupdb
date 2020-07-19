@@ -15,29 +15,29 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-#ifndef GROUNDUPDB_H
-#define GROUNDUPDB_H
+#ifndef HIGHWAYHASH_H
+#define HIGHWAYHASH_H
 
 #include <string>
+#include "highwayhash/highwayhash.h"
 
-// WARNING: This should ONLY include Client API files
-// i.e. NOT anything within include/extensions!
+namespace groundupdbext {
 
-#include "database.h"
-#include "query.h"
+using namespace highwayhash;
 
-namespace groundupdb {
-
-class GroundUpDB
-{
+class HighwayHash {
 public:
-  GroundUpDB();
+  HighwayHash();
+  HighwayHash(std::uint64_t s1,std::uint64_t s2,std::uint64_t s3,std::uint64_t s4);
+  ~HighwayHash();
 
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname);
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore);
-  static std::unique_ptr<IDatabase> loadDB(std::string& dbname);
+  std::size_t operator() (std::string const& s) const noexcept;
+private:
+  const HHKey m_key HH_ALIGNAS(64);
+  HighwayHashCatT<HH_TARGET>* m_hh;
+  HHResult64* m_result;
 };
 
 }
 
-#endif // GROUNDUPDB_H
+#endif // HIGHWAYHASH_H

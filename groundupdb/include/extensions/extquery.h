@@ -15,29 +15,26 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-#ifndef GROUNDUPDB_H
-#define GROUNDUPDB_H
+#ifndef EXTQUERY_H
+#define EXTQUERY_H
 
-#include <string>
+#include "../query.h"
 
-// WARNING: This should ONLY include Client API files
-// i.e. NOT anything within include/extensions!
+namespace groundupdbext {
 
-#include "database.h"
-#include "query.h"
+using namespace groundupdb;
 
-namespace groundupdb {
-
-class GroundUpDB
-{
+class DefaultQueryResult: public IQueryResult {
 public:
-  GroundUpDB();
+  DefaultQueryResult();
+  DefaultQueryResult(std::unique_ptr<std::unordered_set<std::string>> recordKeys);
+  virtual ~DefaultQueryResult() = default;
 
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname);
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore);
-  static std::unique_ptr<IDatabase> loadDB(std::string& dbname);
+  const std::unique_ptr<std::unordered_set<std::string>> recordKeys();
+private:
+  std::unique_ptr<std::unordered_set<std::string>> m_recordKeys;
 };
 
 }
 
-#endif // GROUNDUPDB_H
+#endif // EXTQUERY_H

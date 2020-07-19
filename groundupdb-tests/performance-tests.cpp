@@ -1,3 +1,20 @@
+/*
+See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  Adam Fowler licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
 #define CATCH_CONFIG_ENABLE_BENCHMARKING 1
 #include "catch.hpp"
 
@@ -197,6 +214,97 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     std::cout << "  "
               << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
               << " requests per second" << std::endl;
+
+    // 7. Tear down
+    std::cout << "Tests complete" << std::endl;
+    db->destroy();
+  }
+
+
+  SECTION("Bucket query performance test - In-memory key-value store") {
+    std::cout << "====== In-memory key-value store performance test - Bucket query vs. key fetch ======" << std::endl;
+    std::string dbname("myemptydb");
+    std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore));
+
+    int total = 100000;
+    int every = 1000;
+    std::string bucket("my bucket");
+
+    std::unordered_set<std::string> keysInBuckets;
+
+    // 1. Pre-generate the keys and values in memory (so we don't skew the test)
+    std::unordered_map<std::string,std::string> keyValues;
+    long i = 0;
+    std::cout << "Pre-generating key value pairs..." << std::endl;
+    for (; i < total;i++) {
+      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+      if (0 == i%every) {
+        keysInBuckets.insert(std::to_string(i));
+      }
+    }
+    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
+
+    // 2. Store 100 000 key-value pairs (no overlap)
+    // Raw storage speed
+    std::cout << "====== SET ======" << std::endl;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i=0;
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      if (0 == i%every) {
+        db->setKeyValue(it->first,it->second,bucket);
+      } else {
+        db->setKeyValue(it->first,it->second);
+      }
+      i++;
+    }
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+    std::cout << std::endl;
+
+    // 3. Retrieve 100 000 key-value pairs (no overlap)
+    // Raw retrieval speed
+    std::string aString("blank");
+    std::string& result(aString);
+    std::cout << "====== GET KEYS IN THE BUCKET ======" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    for (auto it = keysInBuckets.begin(); it != keysInBuckets.end(); it++) {
+      result = db->getKeyValue(*it);
+    }
+    end = std::chrono::steady_clock::now();
+    auto getTimeMicro = (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0);
+    std::cout << "  " << keysInBuckets.size() << " completed in "
+              << getTimeMicro
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keysInBuckets.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+
+    // 4. Query comparison
+    std::cout << "====== QUERY KEYS IN THE BUCKET ======" << std::endl;
+    groundupdb::BucketQuery bq(bucket);
+    std::cout << "Executing query" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    std::unique_ptr<groundupdb::IQueryResult> res(db->query(bq));
+    std::cout << "Retrieving results" << std::endl;
+    std::unique_ptr<std::unordered_set<std::string>> recordKeys(res->recordKeys());
+    end = std::chrono::steady_clock::now();
+    auto queryTimeMicro = (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0);
+    std::cout << "  Query completed in "
+              << queryTimeMicro
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " queries per second" << std::endl;
+    std::cout << "Asserting that the query result size should equal the number we placed in buckets" << std::endl;
+    REQUIRE(recordKeys.get()->size() == keysInBuckets.size());
+    std::cout << "Asserting that query time should be quicker than total get time" << std::endl;
+    REQUIRE(queryTimeMicro < getTimeMicro);
 
     // 7. Tear down
     std::cout << "Tests complete" << std::endl;

@@ -2,7 +2,7 @@
 
 Creating a database from the ground up in C++ for fun!
 
-GroundUpDB is an MIT licensed open source database. It is being created in the 
+GroundUpDB is an Apache 2.0 licensed open source database. It is being created in the 
 open as part of a video blog live coding series on database design and
 modern C++ by Adam Fowler. @adamfowleruk
 
@@ -15,6 +15,14 @@ user stories shall be created for each test before development or design
 begins.
 
 The YouTube playlist for this series can be found here: https://www.youtube.com/playlist?list=PLWoOSZbmib_cr7zRfAkPkoa9m2uYsYDug
+
+## Why use GroundUpDB?
+
+GroundUpDB aims to be a high speed, modern implementation of the latest database-relevant algorithms. It aims to be configurable for a range of application and data safety use cases. Multiple abstraction layers over the low-level key-value store provide multi-model capability without sacrificing performance.
+
+The database aims to run on every platforms from an 8-bit microcontroller for edge IoT applications all the way up to multi-node clusters hosted in the cloud, with multiple tenant organisations and applications. The design is highly componentised for this reason.
+
+The database is still young, but I hope to have a proof of concept on a multi-model database with query support that runs on multiple operating systems during the second half of 2020.
 
 ## Getting started
 
@@ -31,15 +39,24 @@ people wish to learn rather than true customer or user driven.
 
 Currently it has these user features:-
 
-- Set a key-value pair
-- Retrieve a value for a key
-
-(Hey, you gotta start somewhere!)
+- (All keys below are unicode strings - you can even use smilies!)
+- Set a key-value pair (string key->string value)
+- Set a key-value pair in a specified (string) bucket (string key->string value)
+- Set a key-value pair (string key->set-of-strings value)
+- Retrieve a string value for a string key
+- Retrieve a set-of-strings value for a string key
+- Query the database for all keys in a named (string) bucket
 
 And these administrative features:-
 
 - Created a new empty database
 - Delete a database and all of its content
+- Bucket indexing support (term list)
+
+These data safety and storage features are present:-
+
+- Strongly consistent file kv store (can be used as a data store or a query index store)
+- Strongly consistent in-memory kv store (can be used as a data store or a query index store, and as a read cache for an underlying key-value store, such as the file kv store)
 
 ## Future roadmap
 
@@ -65,17 +82,9 @@ to send me nice things on Patreon https://www.patreon.com/adamfowleruk then I'll
 ## License & Copyright
 
 All works are copyright Adam Fowler 2020 unless otherwise stated. Code is
-licensed under the MIT license unless otherwise stated.
+licensed under the Apache 2.0 license unless otherwise stated.
 
-This project repository contains two header only files with their own
-licenses for convenience of the programmer. These are:-
-
-- groundupdb-cli/cxxopts.hpp - C++ command line options parser. 
-Copyright (c) 2014, 2015, 2016, 2017 Jarryd Beck.
-MIT licensed
-- groundupdb-tests/catch.hpp - C++ TDD library. 
-Copyright (c) 2020 Two Blue Cubes Ltd. All rights reserved.
-Boost 1.0 license
+See the NOTICE file for details on dependencies and their licenses.
 
 Thank you to these awesome open source developers for their work!
 As programmers we stand on the shoulder of giants!
