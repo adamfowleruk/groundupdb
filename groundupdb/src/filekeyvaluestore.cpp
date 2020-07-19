@@ -69,14 +69,6 @@ FileKeyValueStore::setKeyValue(std::string key,std::string value)
   os.close();
 }
 
-void
-FileKeyValueStore::setKeyValue(std::string key,std::string value, std::string bucket)
-{
-  setKeyValue(key,value);
-
-  // Note: Bucket indexing implemented at DATABASE level, not kv store level
-}
-
 std::string
 FileKeyValueStore::getKeyValue(std::string key)
 {

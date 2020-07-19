@@ -85,17 +85,6 @@ MemoryKeyValueStore::setKeyValue(std::string key,std::string value)
   }
 }
 
-void
-MemoryKeyValueStore::setKeyValue(std::string key,std::string value, std::string bucket)
-{
-  setKeyValue(key,value);
-  if (mImpl->m_cachedStore) {
-    mImpl->m_cachedStore->get()->setKeyValue(key,value,bucket);
-  }
-
-  // Note: Bucket indexing implemented at DATABASE level, not kv store level
-}
-
 std::string
 MemoryKeyValueStore::getKeyValue(std::string key)
 {

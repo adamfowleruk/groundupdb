@@ -36,7 +36,6 @@ public:
 
   // Key-Value user functions
   void                            setKeyValue(std::string key,std::string value);
-  void                            setKeyValue(std::string key,std::string value, std::string bucket);
   std::string                     getKeyValue(std::string key);
   void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
   std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
@@ -57,7 +56,6 @@ public:
 
   // Key-Value use cases
   void                            setKeyValue(std::string key,std::string value);
-  void                            setKeyValue(std::string key,std::string value, std::string bucket);
   std::string                     getKeyValue(std::string key);
   void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
   std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
@@ -84,6 +82,7 @@ public:
   void                                        setKeyValue(std::string key,std::string value, std::string bucket);
   std::string                                 getKeyValue(std::string key);
   void                                        setKeyValue(std::string key,std::unordered_set<std::string> value);
+  void                                        setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket);
   std::unique_ptr<std::unordered_set<std::string>>             getKeyValueSet(std::string key);
 
   // Query records functions

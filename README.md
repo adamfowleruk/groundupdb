@@ -40,8 +40,8 @@ people wish to learn rather than true customer or user driven.
 Currently it has these user features:-
 
 - (All keys below are unicode strings - you can even use smilies!)
+- (All set operations also allow the specification of which bucket to store the key within)
 - Set a key-value pair (string key->string value)
-- Set a key-value pair in a specified (string) bucket (string key->string value)
 - Set a key-value pair (string key->set-of-strings value)
 - Retrieve a string value for a string key
 - Retrieve a set-of-strings value for a string key

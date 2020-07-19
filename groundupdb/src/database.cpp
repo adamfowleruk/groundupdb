@@ -42,11 +42,13 @@ public:
   void                            setKeyValue(std::string key,std::string value, std::string bucket);
   std::string                     getKeyValue(std::string key);
   void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
+  void                            setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket);
   std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
 
   // Query functions
   std::unique_ptr<IQueryResult>    query(Query& query) const;
   std::unique_ptr<IQueryResult>    query(BucketQuery& query) const;
+  void                             indexForBucket(std::string key,std::string bucket);
 
   // management functions
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname);
@@ -144,7 +146,10 @@ std::string EmbeddedDatabase::Impl::getKeyValue(std::string key) {
 
 void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::string value, std::string bucket) {
   setKeyValue(key,value);
+  indexForBucket(key,bucket);
+}
 
+void EmbeddedDatabase::Impl::indexForBucket(std::string key,std::string bucket) {
   // Add to bucket index
   std::string idxKey("bucket::" + bucket);
   // query the key index
@@ -156,6 +161,11 @@ void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::string value, std:
 
 void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::unordered_set<std::string> value) {
   m_keyValueStore->setKeyValue(key,value);
+}
+
+void EmbeddedDatabase::Impl::setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket) {
+  setKeyValue(key,value);
+  indexForBucket(key,bucket);
 }
 
 std::unique_ptr<std::unordered_set<std::string>> EmbeddedDatabase::Impl::getKeyValueSet(std::string key) {
@@ -274,6 +284,10 @@ std::string EmbeddedDatabase::getKeyValue(std::string key) {
 
 void EmbeddedDatabase::setKeyValue(std::string key,std::unordered_set<std::string> value) {
   mImpl->setKeyValue(key,value);
+}
+
+void EmbeddedDatabase::setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket) {
+  mImpl->setKeyValue(key,value,bucket);
 }
 
 std::unique_ptr<std::unordered_set<std::string>> EmbeddedDatabase::getKeyValueSet(std::string key) {
