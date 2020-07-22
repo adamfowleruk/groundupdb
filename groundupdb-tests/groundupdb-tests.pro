@@ -10,6 +10,7 @@ QMAKE_CXXFLAGS += -O2 -fPIC
 SOURCES += \
         dbmanagement-tests.cpp \
         hashing-tests.cpp \
+        keyvalue-bug-tests.cpp \
         keyvalue-tests.cpp \
         performance-tests.cpp \
         query-tests.cpp

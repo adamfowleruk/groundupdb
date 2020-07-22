@@ -16,6 +16,7 @@ specific language governing permissions and limitations
 under the License.
 */
 #include "extensions/extdatabase.h"
+#include "extensions/highwayhash.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,13 +30,14 @@ class FileKeyValueStore::Impl {
 public:
   Impl(std::string fullpath);
   std::string m_fullpath;
+  HighwayHash m_hasher;
 
 private:
 
 };
 
 FileKeyValueStore::Impl::Impl(std::string fullpath)
-  : m_fullpath(fullpath)
+  : m_fullpath(fullpath), m_hasher()
 {
   ;
 }
@@ -63,16 +65,23 @@ void
 FileKeyValueStore::setKeyValue(std::string key,std::string value)
 {
   std::ofstream os;
-  os.open(mImpl->m_fullpath + "/" + key + "_string.kv",
+  std::string keyHash(std::to_string(mImpl->m_hasher(key)));
+  os.open(mImpl->m_fullpath + "/" + keyHash + ".kv",
           std::ios::out | std::ios::trunc);
   os << value;
+  os.close();
+  // TODO allow multiple keys for this hash (read, modify, write)
+  os.open(mImpl->m_fullpath + "/" + keyHash + ".key",
+          std::ios::out | std::ios::trunc);
+  os << "string" << std::endl;
+  os << key;
   os.close();
 }
 
 std::string
 FileKeyValueStore::getKeyValue(std::string key)
 {
-  std::ifstream t(mImpl->m_fullpath + "/" + key + "_string.kv"); // DANGEROUS
+  std::ifstream t(mImpl->m_fullpath + "/" + std::to_string(mImpl->m_hasher(key)) + ".kv"); // DANGEROUS
   std::string value;
 
   t.seekg(0, std::ios::end);
@@ -90,7 +99,8 @@ void
 FileKeyValueStore::setKeyValue(std::string key,std::unordered_set<std::string> value) {
   // store in _string_set.kl file elements_num<length,value...>...
   std::ofstream os;
-  std::string fp(mImpl->m_fullpath + "/" + key + "_string_set.kv");
+  std::string keyHash(std::to_string(mImpl->m_hasher(key)));
+  std::string fp(mImpl->m_fullpath + "/" + keyHash + ".kv");
   os.open(fp,
           std::ios::out | std::ios::trunc);
   os << value.size() << std::endl;
@@ -99,12 +109,18 @@ FileKeyValueStore::setKeyValue(std::string key,std::unordered_set<std::string> v
     os << val.c_str() << std::endl;
   }
   os.close();
+  // TODO allow multiple keys for this hash (read, modify, write)
+  os.open(mImpl->m_fullpath + "/" + keyHash + ".key",
+          std::ios::out | std::ios::trunc);
+  os << "string_set" << std::endl;
+  os << key;
+  os.close();
 }
 
 std::unique_ptr<std::unordered_set<std::string>>
 FileKeyValueStore::getKeyValueSet(std::string key) {
   // get from _string_set.kl file
-  std::string fp(mImpl->m_fullpath + "/" + key + "_string_set.kv");
+  std::string fp(mImpl->m_fullpath + "/" + std::to_string(mImpl->m_hasher(key)) + ".kv");
   if (!fs::exists(fp)) {
     return std::make_unique<std::unordered_set<std::string>>();
   }
@@ -133,24 +149,38 @@ FileKeyValueStore::loadKeysInto(
     std::function<void(std::string key,std::string value)> callback)
 {
   // load any files with .kv in their name
-  for (auto& p : fs::directory_iterator(mImpl->m_fullpath)) {
+  fs::path fp(mImpl->m_fullpath);
+  for (auto& p : fs::directory_iterator(fp)) {
     if (p.exists() && p.is_regular_file()) {
       // check if extension is .kv
-      if(".kv" == p.path().extension()) {
+      if(".key" == p.path().extension()) {
         // If so, open file
 
-        std::string keyWithString = p.path().filename();
-        // ASSUMPTION always ends with _string.kv
-        std::string key = keyWithString.substr(0,keyWithString.length() - 10); // DANGEROUS!!!
+        std::string hashWithExtension = p.path().filename();
+        // ASSUMPTION always ends with .kv
+        std::string hash = hashWithExtension.substr(0,hashWithExtension.length() - 4); // BUG0000001
 
         std::ifstream t(p.path());
-        std::string value;
+        std::string key;
+        std::string type;
+        std::getline(t,type); // string or string_set right now
 
         t.seekg(0, std::ios::end);
-        value.reserve(t.tellg());
-        t.seekg(0, std::ios::beg);
+        key.reserve(t.tellg()); // TODO - (type.length() + 1)
+        t.seekg(type.length() + 1, std::ios::beg);
 
-        value.assign((std::istreambuf_iterator<char>(t)),
+        key.assign((std::istreambuf_iterator<char>(t)),
+                      std::istreambuf_iterator<char>());
+
+
+        std::ifstream t2(fp / (hash + ".kv")); // BUG-0000001 improper path/filename
+        std::string value;
+
+        t2.seekg(0, std::ios::end);
+        value.reserve(t2.tellg());
+        t2.seekg(0, std::ios::beg);
+
+        value.assign((std::istreambuf_iterator<char>(t2)),
                       std::istreambuf_iterator<char>());
 
         callback(key,value);

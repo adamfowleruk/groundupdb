@@ -4,6 +4,7 @@ add_executable(groundupdb-tests
 	dbmanagement-tests.cpp
 	hashing-tests.cpp
 	keyvalue-tests.cpp
+	keyvalue-bug-tests.cpp
 	performance-tests.cpp
 	query-tests.cpp
 )
