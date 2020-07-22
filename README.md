@@ -28,11 +28,25 @@ The database is still young, but I hope to have a proof of concept on a multi-mo
 
 You can either build with CMake or QtCreator. Either way executable and library files will be found under the relevant subdirectories for each target within the build folder.
 
+Where `cd groundupdb` appears below, this should always be read as 'move to the top level folder in this repo' :)
+
+### Building Dependencies
+
+Currently Google's highwayhash, which is referenced herein as a sub-module, and must be built before GroundupDB as follows:
+
+```sh
+cd groundupdb
+git submodule update
+cd highwayhash
+make lib/libhighwayhash.a
+```
+
 ### Building withCMake
 
 ```sh
 cd groundupdb
-cmake --build ./build --config Debug --target all -- -j 14
+cmake -B ./build
+cmake --build ./build --config Debug --target all -j
 cd build
 ```
 
@@ -58,7 +72,7 @@ cd groundupdb-cli
 # Set a key
 ./groundupdb-cli -n mydb -s -k "My key" -v "My amazing value"
 # Get a key
-./groundupdb-cli -n mydb -s -k "My key"
+./groundupdb-cli -n mydb -g -k "My key"
 > My amazing value
 # List CLI usage and all other commands
 ./groundupdb-cli

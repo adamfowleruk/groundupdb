@@ -19,6 +19,7 @@ under the License.
 #define QUERY_H
 
 #include <string>
+#include <memory>
 #include <unordered_set>
 
 namespace groundupdb {

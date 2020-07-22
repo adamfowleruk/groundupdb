@@ -10,6 +10,9 @@ add_executable(groundupdb-tests
 
 include_directories(${groundupdb_SOURCE_DIR})
 
-include_directories(${groundupdb_SOURCE_DIR}/../highwayhash)
+# This assume highwayhash is a sub-module of this repo..
+include_directories(${groundupdb_SOURCE_DIR}/highwayhash)
+# if you have built highwayhash as a peer repo, use this line
+#include_directories(${groundupdb_SOURCE_DIR}/../highwayhash)
 
-target_link_libraries(groundupdb-tests PRIVATE groundupdb)
+target_link_libraries(groundupdb-tests PRIVATE groundupdb stdc++fs)

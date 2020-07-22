@@ -21,6 +21,7 @@ under the License.
 #include "query.h"
 
 #include <string>
+#include <functional>
 
 namespace groundupdb {
 
