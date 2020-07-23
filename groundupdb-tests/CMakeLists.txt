@@ -15,4 +15,4 @@ include_directories(${groundupdb_SOURCE_DIR}/highwayhash)
 # if you have built highwayhash as a peer repo, use this line
 #include_directories(${groundupdb_SOURCE_DIR}/../highwayhash)
 
-target_link_libraries(groundupdb-tests PRIVATE groundupdb stdc++fs)
+target_link_libraries(groundupdb-tests PRIVATE groundupdb)

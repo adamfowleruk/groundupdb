@@ -36,7 +36,7 @@ Currently Google's highwayhash, which is referenced herein as a sub-module, and 
 
 ```sh
 cd groundupdb
-git submodule update
+git submodule update --init --recursive
 cd highwayhash
 make lib/libhighwayhash.a
 ```

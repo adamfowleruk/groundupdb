@@ -33,6 +33,12 @@ target_include_directories(groundupdb
 	$<INSTALL_INTERFACE:include>
 )
 
+# NB: This is here to ensure binaries that link us also link stdc++fs for non-Apple targets
+# https://github.com/OpenRCT2/OpenRCT2/pull/10522
+if(NOT APPLE)
+target_link_libraries(groundupdb PRIVATE stdc++fs)
+endif(NOT APPLE)
+
 install(TARGETS groundupdb 
 	EXPORT groundupdb
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}  
