@@ -25,6 +25,7 @@ under the License.
 
 #include "database.h"
 #include "query.h"
+#include "types.h"
 
 namespace groundupdb {
 

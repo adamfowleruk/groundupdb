@@ -26,7 +26,7 @@ under the License.
 #include "groundupdb/groundupdb.h"
 #include "groundupdb/groundupdbext.h"
 
-TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
+TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getKeyValue]") {
 
   // Story:-
   //   [Who]   As a database administrator
@@ -67,7 +67,7 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     // 3. Retrieve 100 000 key-value pairs (no overlap)
     // Raw retrieval speed
     std::string aString("blank");
-    std::string& result(aString);
+    groundupdb::EncodedValue result(aString);
     std::cout << "====== GET ======" << std::endl;
     begin = std::chrono::steady_clock::now();
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
@@ -143,7 +143,7 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     // 3. Retrieve 100 000 key-value pairs (no overlap)
     // Raw retrieval speed
     std::string aString("blank");
-    std::string& result(aString);
+    groundupdb::EncodedValue result(aString);
     std::cout << "====== GET ======" << std::endl;
     begin = std::chrono::steady_clock::now();
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
@@ -201,7 +201,7 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     // 3. Retrieve 100 000 key-value pairs (no overlap)
     // Raw retrieval speed
     std::string aString("blank");
-    std::string& result(aString);
+    groundupdb::EncodedValue result(aString);
     std::cout << "====== GET ======" << std::endl;
     begin = std::chrono::steady_clock::now();
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
@@ -270,7 +270,7 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     // 3. Retrieve 100 000 key-value pairs (no overlap)
     // Raw retrieval speed
     std::string aString("blank");
-    std::string& result(aString);
+    groundupdb::EncodedValue result(aString);
     std::cout << "====== GET KEYS IN THE BUCKET ======" << std::endl;
     begin = std::chrono::steady_clock::now();
     for (auto it = keysInBuckets.begin(); it != keysInBuckets.end(); it++) {
@@ -292,7 +292,7 @@ TEST_CASE("Measure basic performance","[setKeyValue,getKeyValue]") {
     begin = std::chrono::steady_clock::now();
     std::unique_ptr<groundupdb::IQueryResult> res(db->query(bq));
     std::cout << "Retrieving results" << std::endl;
-    std::unique_ptr<std::unordered_set<std::string>> recordKeys(res->recordKeys());
+    const groundupdb::KeySet& recordKeys = res->recordKeys();
     end = std::chrono::steady_clock::now();
     auto queryTimeMicro = (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0);
     std::cout << "  Query completed in "

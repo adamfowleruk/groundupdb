@@ -24,9 +24,11 @@ SOURCES += \
     src/database.cpp \
     src/filekeyvaluestore.cpp \
     src/groundupdb.cpp \
+    src/hashes.cpp \
     src/highwayhash.cpp \
     src/memorykeyvaluestore.cpp \
-    src/query.cpp
+    src/query.cpp \
+    src/types.cpp
 
 HEADERS += \
     groundupdb.h \
@@ -36,7 +38,9 @@ HEADERS += \
     include/extensions/extquery.h \
     include/extensions/highwayhash.h \
     include/groundupdb.h \
-    include/query.h
+    include/hashes.h \
+    include/query.h \
+    include/types.h
 
 HH = ../../highwayhash
 

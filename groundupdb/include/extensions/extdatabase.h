@@ -35,13 +35,13 @@ public:
   ~MemoryKeyValueStore();
 
   // Key-Value user functions
-  void                            setKeyValue(std::string key,std::string value);
-  std::string                     getKeyValue(std::string key);
-  void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
-  std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
+  void                            setKeyValue(const HashedValue& key,EncodedValue value);
+  EncodedValue                    getKeyValue(const HashedValue& key);
+  void                            setKeyValue(const HashedValue& key,const Set& value);
+  Set                             getKeyValueSet(const HashedValue& key);
 
   // Key-value management functions
-  void                            loadKeysInto(std::function<void(std::string key,std::string value)> callback);
+  void                            loadKeysInto(std::function<void(const HashedValue& key,EncodedValue value)> callback);
   void                            clear();
 
 private:
@@ -55,12 +55,12 @@ public:
   ~FileKeyValueStore();
 
   // Key-Value use cases
-  void                            setKeyValue(std::string key,std::string value);
-  std::string                     getKeyValue(std::string key);
-  void                            setKeyValue(std::string key,std::unordered_set<std::string> value);
-  std::unique_ptr<std::unordered_set<std::string>> getKeyValueSet(std::string key);
+  void                            setKeyValue(const HashedValue& key,EncodedValue value);
+  EncodedValue                    getKeyValue(const HashedValue& key);
+  void                            setKeyValue(const HashedValue& key,const Set& value);
+  Set                             getKeyValueSet(const HashedValue& key);
 
-  void                            loadKeysInto(std::function<void(std::string key,std::string value)> callback);
+  void                            loadKeysInto(std::function<void(const HashedValue& key,EncodedValue value)> callback);
   void                            clear();
 
 private:
@@ -78,12 +78,12 @@ public:
   std::string                                 getDirectory(void);
 
   // Key-Value use cases
-  void                                        setKeyValue(std::string key,std::string value);
-  void                                        setKeyValue(std::string key,std::string value, std::string bucket);
-  std::string                                 getKeyValue(std::string key);
-  void                                        setKeyValue(std::string key,std::unordered_set<std::string> value);
-  void                                        setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket);
-  std::unique_ptr<std::unordered_set<std::string>>             getKeyValueSet(std::string key);
+  void                                        setKeyValue(const HashedValue& key,EncodedValue value);
+  void                                        setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket);
+  EncodedValue                                getKeyValue(const HashedValue& key);
+  void                                        setKeyValue(const HashedValue& key,const Set& value);
+  void                                        setKeyValue(const HashedValue& key,const Set& value,std::string bucket);
+  Set                                         getKeyValueSet(const HashedValue& key);
 
   // Query records functions
   std::unique_ptr<IQueryResult>                query(Query& query) const;

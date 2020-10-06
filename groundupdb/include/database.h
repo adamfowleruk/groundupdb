@@ -19,6 +19,7 @@ under the License.
 #define DATABASE_H
 
 #include "query.h"
+#include "types.h"
 
 #include <string>
 
@@ -30,22 +31,20 @@ public:
   virtual ~Store() = default;
 };
 
-using Set = std::unique_ptr<std::unordered_set<std::string>>;
-
 class KeyValueStore : public Store {
 public:
   KeyValueStore() = default;
   virtual ~KeyValueStore() = default;
 
   // Key-Value user functions
-  virtual void                            setKeyValue(std::string key,std::string value) = 0;
-  //virtual void                            setKeyValue(std::string key,std::string value, std::string bucket) = 0;
-  virtual std::string                     getKeyValue(std::string key) = 0;
-  virtual void                            setKeyValue(std::string key,std::unordered_set<std::string> value) = 0;
-  virtual Set getKeyValueSet(std::string key) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value) = 0;
+  //virtual void                            setKeyValue(const HashedKey& key,std::string value, std::string bucket) = 0;
+  virtual EncodedValue                    getKeyValue(const HashedValue& key) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,const Set& value) = 0;
+  virtual Set                             getKeyValueSet(const HashedValue& key) = 0;
 
   // Key-value management functions
-  virtual void                            loadKeysInto(std::function<void(std::string key,std::string value)> callback) = 0;
+  virtual void                            loadKeysInto(std::function<void(const HashedValue& key,EncodedValue value)> callback) = 0;
   virtual void                            clear() = 0;
 };
 
@@ -59,12 +58,12 @@ public:
   virtual std::string                     getDirectory(void) = 0;
 
   // Key-Value use cases
-  virtual void                            setKeyValue(std::string key,std::string value) = 0;
-  virtual void                            setKeyValue(std::string key,std::string value, std::string bucket) = 0;
-  virtual std::string                     getKeyValue(std::string key) = 0;
-  virtual void                            setKeyValue(std::string key,std::unordered_set<std::string> value) = 0;
-  virtual void                            setKeyValue(std::string key,std::unordered_set<std::string> value,std::string bucket) = 0;
-  virtual Set getKeyValueSet(std::string key) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket) = 0;
+  virtual EncodedValue                    getKeyValue(const HashedValue& key) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,const Set& value) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,const Set& value,std::string bucket) = 0;
+  virtual Set                             getKeyValueSet(const HashedValue& key) = 0;
 
   // Query records functions
   virtual QueryResult query(Query& query) const = 0;
@@ -75,7 +74,7 @@ public:
   static const std::unique_ptr<IDatabase>       createEmpty(std::string dbname);
   static const std::unique_ptr<IDatabase>       createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore);
   static const std::unique_ptr<IDatabase>       load(std::string dbname);
-  virtual void                  destroy() = 0;
+  virtual void                                  destroy() = 0;
 
 };
 

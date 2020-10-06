@@ -24,7 +24,7 @@ under the License.
 
 namespace fs = std::filesystem;
 
-TEST_CASE("Create a new empty database","[createEmptyDB]") {
+TEST_CASE("db-create","[createEmptyDB]") {
 
     // Story:-
     //   [Who]   As a database administrator
@@ -47,8 +47,12 @@ TEST_CASE("Create a new empty database","[createEmptyDB]") {
         // 3. The database folder is empty (no database files yet)
 
         std::cout << "iterating over db directory" << std::endl;
-        const auto& p = fs::directory_iterator(db->getDirectory());
+        auto p = fs::directory_iterator(db->getDirectory());
+        REQUIRE(p != end(p)); // Should have an empty .indexes folder
+        REQUIRE(p->is_directory()); // The .indexes folder
+        p++;
         REQUIRE(p == end(p)); // i.e. no contents as iterator is at the end already
+
         // C++17 Ref: https://en.cppreference.com/w/cpp/filesystem/directory_iterator
 
         std::cout << "destroying db" << std::endl;
@@ -58,7 +62,7 @@ TEST_CASE("Create a new empty database","[createEmptyDB]") {
     }
 }
 
-TEST_CASE("Load an existing database","[loadDB]") {
+TEST_CASE("db-load","[loadDB]") {
 
     // Story:-
     //   [Who]   As a database user
@@ -79,8 +83,12 @@ TEST_CASE("Load an existing database","[loadDB]") {
         // C++17 Ref: https://en.cppreference.com/w/cpp/filesystem/is_directory
 
         // 3. The database folder is empty (no database files yet)
-        const auto& p = fs::directory_iterator(db2->getDirectory());
+        auto p = fs::directory_iterator(db->getDirectory());
+        REQUIRE(p != end(p)); // Should have an empty .indexes folder
+        REQUIRE(p->is_directory()); // The .indexes folder
+        p++;
         REQUIRE(p == end(p)); // i.e. no contents as iterator is at the end already
+
         // C++17 Ref: https://en.cppreference.com/w/cpp/filesystem/directory_iterator
 
         // Clear out the DB

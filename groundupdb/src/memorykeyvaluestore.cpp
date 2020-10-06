@@ -27,8 +27,8 @@ public:
   Impl();
   Impl(std::unique_ptr<KeyValueStore>& toCache);
 
-  std::unordered_map<std::string,std::string,HighwayHash> m_keyValueStore;
-  std::unordered_map<std::string,std::unordered_set<std::string>,HighwayHash> m_listStore;
+  std::unordered_map<HashedValue,EncodedValue,HighwayHash> m_keyValueStore;
+  std::unordered_map<HashedValue,Set,HighwayHash> m_listStore;
   std::optional<std::unique_ptr<KeyValueStore>> m_cachedStore;
 
 private:
@@ -61,7 +61,7 @@ MemoryKeyValueStore::MemoryKeyValueStore()
 MemoryKeyValueStore::MemoryKeyValueStore(std::unique_ptr<KeyValueStore>& toCache)
   : mImpl(std::make_unique<MemoryKeyValueStore::Impl>(toCache))
 {
-  mImpl->m_cachedStore->get()->loadKeysInto([this](std::string key,std::string value) {
+  mImpl->m_cachedStore->get()->loadKeysInto([this](const HashedValue& key,EncodedValue value) {
     mImpl->m_keyValueStore.insert({key,value});
   });
 }
@@ -74,7 +74,7 @@ MemoryKeyValueStore::~MemoryKeyValueStore()
 
 // Key-Value use cases
 void
-MemoryKeyValueStore::setKeyValue(std::string key,std::string value)
+MemoryKeyValueStore::setKeyValue(const HashedValue& key,EncodedValue value)
 {
   // Also write to our in-memory unordered map
   // Note: insert on unordered_map does NOT perform an insert if the key already exists
@@ -85,43 +85,61 @@ MemoryKeyValueStore::setKeyValue(std::string key,std::string value)
   }
 }
 
-std::string
-MemoryKeyValueStore::getKeyValue(std::string key)
+EncodedValue
+MemoryKeyValueStore::getKeyValue(const HashedValue& key)
 {
   // Only ever read from our in memory map!
   const auto& v = mImpl->m_keyValueStore.find(key);
   if (v == mImpl->m_keyValueStore.end()) {
-    return ""; // DANGEROUS! Should be 'not found'. TODO error handling.
+    return EncodedValue(); // Now provides an empty value with hasValue() == false
+    // TODO make the above more efficient - no construct-then-copy
   }
   return v->second;
 }
 
 
 void
-MemoryKeyValueStore::setKeyValue(std::string key,std::unordered_set<std::string> value) {
+MemoryKeyValueStore::setKeyValue(const HashedValue& key,const Set& value) {
   // Note: insert on unordered_map does NOT perform an insert if the key already exists
   mImpl->m_listStore.erase(key);
-  mImpl->m_listStore.insert({key,value});
+  Set newvalue = std::make_unique<std::unordered_set<EncodedValue>>(); // WARNING: MUST use make_unique here!
+
+  //std::cout << "MEMKVS: Inserting set values in to copy of set" << std::endl;
+  //newvalue->merge(*value);
+  newvalue->insert(value->begin(),value->end());
+  //std::cout << "MEMKVS: Set size now: " << newvalue->size() << std::endl;
+  //mImpl->m_listStore.insert({key,newvalue}); // STD LIB bug. See https://stackoverflow.com/questions/14808663/stdunordered-mapemplace-issue-with-private-deleted-copy-constructor
+  //std::cout << "MEMKVS: emplacing new set" << std::endl;
+  mImpl->m_listStore.emplace(key,std::forward<Set>(newvalue));
+  //mImpl->m_listStore.emplace(key,value);
+  //std::cout << "MEMKVS: Checking cache" << std::endl;
   if (mImpl->m_cachedStore) {
+    //std::cout << "MEMKVS: Setting cache value" << std::endl;
     mImpl->m_cachedStore->get()->setKeyValue(key,value);
   }
 }
 
-std::unique_ptr<std::unordered_set<std::string>>
-MemoryKeyValueStore::getKeyValueSet(std::string key) {
+Set
+MemoryKeyValueStore::getKeyValueSet(const HashedValue& key) {
   const auto& v = mImpl->m_listStore.find(key);
+  //std::cout << "MEMKVS: getKeyValueSet" << std::endl;
   if (v == mImpl->m_listStore.end()) {
+    //std::cout << "  MEMKVS: not found in memory" << std::endl;
     // try underlying store first
     if (mImpl->m_cachedStore) {
+      //std::cout << "  MEMKVS: checking underlying store we're caching for and returning" << std::endl;
       return mImpl->m_cachedStore->get()->getKeyValueSet(key);
     }
-    return std::make_unique<std::unordered_set<std::string>>(); // copy ctor
+    //std::cout << "  MEMKVS: Returning empty value" << std::endl;
+    return std::make_unique<std::unordered_set<EncodedValue>>(); // copy ctor
   }
-  return std::make_unique<std::unordered_set<std::string>>(v->second); // copy ctor
+  //std::cout << "  MEMKVS: returning Set with size: " << v->second->size() << std::endl;
+  // Note we dereference the below because v->second is an unorderedmap hashedvalue wrapper, and not the Set value itself
+  return std::make_unique<std::unordered_set<EncodedValue>>(*(v->second)); // copy ctor
 }
 
 void
-MemoryKeyValueStore::loadKeysInto(std::function<void(std::string key,std::string value)> callback)
+MemoryKeyValueStore::loadKeysInto(std::function<void(const HashedValue& key,EncodedValue value)> callback)
 {
   for (auto element : mImpl->m_keyValueStore) {
     callback(element.first,element.second);
