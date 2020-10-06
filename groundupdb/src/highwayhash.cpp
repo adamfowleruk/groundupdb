@@ -51,4 +51,32 @@ HighwayHash::operator() (std::string const& s) const noexcept {
   return *m_result;
 }
 
+std::size_t
+HighwayHash::operator() (const char* data,std::size_t length) const noexcept {
+  m_hh->Reset(m_key);
+  m_hh->Append(data, length);
+  m_hh->Finalize(m_result);
+  return *m_result;
+}
+
+std::size_t
+HighwayHash::operator() (const groundupdb::HashedValue& data) const noexcept {
+  m_hh->Reset(m_key);
+  for (auto& b : data.data()) {
+    m_hh->Append((const char*)&b,sizeof(b));
+  }
+  m_hh->Finalize(m_result);
+  return *m_result;
+}
+
+std::size_t
+HighwayHash::operator() (const groundupdb::EncodedValue& data) const noexcept {
+  m_hh->Reset(m_key);
+  for (auto& b : data.data()) {
+    m_hh->Append((const char*)&b,sizeof(b));
+  }
+  m_hh->Finalize(m_result);
+  return *m_result;
+}
+
 }

@@ -25,7 +25,7 @@ using namespace groundupdb;
 cxxopts::Options options("groundupdb-cli","CLI for GroundUpDB");
 
 void printUsage() {
-  cout << "Whoops bad config!" << endl;
+  cout << options.help() << endl;
 }
 
 // Incorporating https://github.com/jarro2783/cxxopts as a header only library for options parsing
@@ -111,7 +111,15 @@ int main(int argc, char* argv[]) {
         std::string dbname(result["n"].as<std::string>());
         std::string k(result["k"].as<std::string>());
         std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
-        cout << db->getKeyValue(k) << endl;
+        groundupdb::Bytes bytes = db->getKeyValue(k).data();
+        char chars[bytes.size() + 1];
+        int pos = 0;
+        for (auto& c : bytes) {
+          chars[pos++] = (char)c;
+        }
+        chars[pos] = '\0';
+        std::string key(chars);
+        cout << key << endl;
         return 0;
     }
     if (result.count("q") == 1) {
@@ -130,10 +138,18 @@ int main(int argc, char* argv[]) {
         std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
         groundupdb::BucketQuery bq(b);
         std::unique_ptr<groundupdb::IQueryResult> res = db->query(bq);
-        std::unique_ptr<std::unordered_set<std::string>> recordKeys(res->recordKeys());
+        const groundupdb::KeySet& recordKeys = res->recordKeys();
         //cout << recordKeys.get()->size() << endl;
         for (auto it = recordKeys.get()->begin(); it != recordKeys.get()->end();it++) {
-          cout << (*it) << endl;
+          groundupdb::Bytes bytes = it->data();
+          char chars[bytes.size() + 1];
+          int pos = 0;
+          for (auto& c : bytes) {
+            chars[pos++] = (char)c;
+          }
+          chars[pos] = '\0';
+          std::string key(chars);
+          cout << key << endl;
         }
         return 0;
     }

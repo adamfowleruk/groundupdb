@@ -16,6 +16,7 @@ specific language governing permissions and limitations
 under the License.
 */
 #include "query.h"
+#include "types.h"
 #include "extensions/extquery.h"
 
 #include <string>
@@ -52,19 +53,28 @@ BucketQuery::bucket() const {
   return mImpl->m_bucket;
 }
 
+
 DefaultQueryResult::DefaultQueryResult()
-  : m_recordKeys()
+  : m_recordKeys(std::make_unique<std::unordered_set<HashedKey>>())
 {
   ;
 }
 
-DefaultQueryResult::DefaultQueryResult(std::unique_ptr<std::unordered_set<std::string>> recordKeys)
+DefaultQueryResult::DefaultQueryResult(KeySet recordKeys)
   : m_recordKeys(std::move(recordKeys))
 {
   ;
 }
 
-const std::unique_ptr<std::unordered_set<std::string>>
+DefaultQueryResult::DefaultQueryResult(Set recordKeys)
+  : m_recordKeys(std::make_unique<std::unordered_set<HashedKey>>())
+{
+  for (auto& key : *recordKeys) {
+    m_recordKeys->insert(key);
+  }
+}
+
+const KeySet&
 DefaultQueryResult::recordKeys() {
-  return std::move(m_recordKeys);
+  return m_recordKeys;
 }

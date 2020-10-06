@@ -15,53 +15,32 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
-#ifndef QUERY_H
-#define QUERY_H
-
-#include "types.h"
+#ifndef HASHES_H
+#define HASHES_H
 
 #include <string>
-#include <unordered_set>
 
 namespace groundupdb {
 
-// Tagging class for now
-class Query {
+// forward declarations
+class HashedValue;
+class EncodedValue;
+
+class DefaultHash {
 public:
-  Query() = default;
-  virtual ~Query() = default;
-private:
-};
+  DefaultHash();
+  DefaultHash(std::uint64_t s1,std::uint64_t s2,std::uint64_t s3,std::uint64_t s4);
+  ~DefaultHash();
 
-class IQueryResult {
-public:
-  IQueryResult() = default;
-  virtual ~IQueryResult() = default;
+  std::size_t operator() (const HashedValue& s) const noexcept;
+  std::size_t operator() (const EncodedValue& s) const noexcept;
+  std::size_t operator() (const std::string& s) const noexcept;
+  std::size_t operator() (const char* data,std::size_t length) const noexcept;
 
-  virtual const KeySet& recordKeys() = 0;
-};
-
-// MARK: Query Implementation Types
-
-
-// default empty query matches all data
-class EmptyQuery : public Query {
-public:
-  EmptyQuery() = default;
-  virtual ~EmptyQuery() = default;
-};
-
-// Parent bucket query
-class BucketQuery : public Query {
-public:
-  BucketQuery(std::string& bucket);
-  virtual ~BucketQuery();
-
-  virtual std::string bucket() const;
-private:
   class Impl;
+private:
   std::unique_ptr<Impl> mImpl;
 };
 
 }
-#endif // QUERY_H
+#endif // HASHES_H

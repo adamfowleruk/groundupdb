@@ -31,7 +31,7 @@ TEST_CASE("kv-bugs","[setKeyValue,getKeyValue]") {
   SECTION("loadKeysIntoMemoryStoreFromFileStore_kvFilename") {
     std::string dbname("myemptydb");
     std::string key("simplestring");
-    std::string value("Some highly valuable value");
+    groundupdb::EncodedValue value("Some highly valuable value");
     {
       std::unique_ptr<groundupdb::IDatabase> db(
             groundupdb::GroundUpDB::createEmptyDB(dbname));
@@ -44,7 +44,7 @@ TEST_CASE("kv-bugs","[setKeyValue,getKeyValue]") {
 
     std::unique_ptr<groundupdb::IDatabase> db(
           groundupdb::GroundUpDB::loadDB(dbname));
-    std::string value2("Some highly valuable value number 2");
+    groundupdb::EncodedValue value2("Some highly valuable value number 2");
     REQUIRE_NOTHROW(db->setKeyValue(key,value2)); // BLOWS UP
     REQUIRE(value2 == db->getKeyValue(key));
 
