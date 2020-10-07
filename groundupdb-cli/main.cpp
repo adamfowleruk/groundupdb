@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
         std::string k(result["k"].as<std::string>());
         std::unique_ptr<groundupdb::IDatabase> db(GroundUpDB::loadDB(dbname));
         groundupdb::Bytes bytes = db->getKeyValue(k).data();
-        char chars[bytes.size() + 1];
+        char* chars = new char[bytes.size() + 1];
         int pos = 0;
         for (auto& c : bytes) {
           chars[pos++] = (char)c;
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
         //cout << recordKeys.get()->size() << endl;
         for (auto it = recordKeys.get()->begin(); it != recordKeys.get()->end();it++) {
           groundupdb::Bytes bytes = it->data();
-          char chars[bytes.size() + 1];
+          char* chars = new char[bytes.size() + 1];
           int pos = 0;
           for (auto& c : bytes) {
             chars[pos++] = (char)c;

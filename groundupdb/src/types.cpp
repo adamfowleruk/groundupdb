@@ -39,15 +39,6 @@ HashedValue::HashedValue()
 }
 
 /** Copy/move constuctors and operators **/
-HashedValue::HashedValue(HashedValue& from)
-  : m_has_value(from.m_has_value),
-    m_data(from.m_data),
-    m_length(from.m_length),
-    m_hash(from.m_hash)
-{
-  ;
-}
-
 HashedValue::HashedValue(const HashedValue& from)
   : m_has_value(from.m_has_value),
     m_data(from.m_data),

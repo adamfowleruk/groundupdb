@@ -68,7 +68,7 @@ class HashedValue {
 private:
   bool m_has_value;
   Bytes m_data; // original key data binary representation
-  int m_length; // binary length in bytes
+  std::size_t m_length; // binary length in bytes
   std::size_t m_hash; // one-way hash of the key binary representation using the server's specified algorithm
 public:
   //HashedValue(Bytes data,int length,std::size_t hash);
@@ -89,7 +89,7 @@ public:
   }
 
   /** Copy/move constuctors and operators **/
-  HashedValue(HashedValue& from);
+  //HashedValue(HashedValue& from);
   HashedValue(const HashedValue& from);
   HashedValue(const HashedValue&& from);
   HashedValue& operator=(const HashedValue& other);
@@ -153,7 +153,7 @@ public:
   EncodedValue() : m_has_value(false), m_type(Type::UNKNOWN), m_value() {}
 
   /** Copy/move constuctors and operators **/
-  EncodedValue(EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
+  //EncodedValue(EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue(const EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue(const EncodedValue&& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue& operator=(const EncodedValue& other) {

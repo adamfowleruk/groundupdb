@@ -29,13 +29,13 @@ int main()
   char* buffer;
   int bufferLength = 32;
 
-  int storeSize = 65000; // Number of records in our 'database'
+  const int storeSize = 65000; // Number of records in our 'database'
 
 
 
   // OPTION 1: Store unsorted
 
-  unsigned short int chosen = (storeSize / 4) * 3 + 1;
+  const unsigned short int chosen = (storeSize / 4) * 3 + 1;
   std::string chosenString;
   std::string* stringPtrArray[storeSize]; // array of pointers to strings
   int ci = 0;
