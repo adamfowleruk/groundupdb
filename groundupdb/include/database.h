@@ -37,7 +37,7 @@ public:
   virtual ~KeyValueStore() = default;
 
   // Key-Value user functions
-  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue&& value) = 0;
   //virtual void                            setKeyValue(const HashedKey& key,std::string value, std::string bucket) = 0;
   virtual EncodedValue                    getKeyValue(const HashedValue& key) = 0;
   virtual void                            setKeyValue(const HashedValue& key,const Set& value) = 0;
@@ -58,11 +58,11 @@ public:
   virtual std::string                     getDirectory(void) = 0;
 
   // Key-Value use cases
-  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value) = 0;
-  virtual void                            setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue&& value) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,EncodedValue&& value,const std::string& bucket) = 0;
   virtual EncodedValue                    getKeyValue(const HashedValue& key) = 0;
   virtual void                            setKeyValue(const HashedValue& key,const Set& value) = 0;
-  virtual void                            setKeyValue(const HashedValue& key,const Set& value,std::string bucket) = 0;
+  virtual void                            setKeyValue(const HashedValue& key,const Set& value,const std::string& bucket) = 0;
   virtual Set                             getKeyValueSet(const HashedValue& key) = 0;
 
   // Query records functions

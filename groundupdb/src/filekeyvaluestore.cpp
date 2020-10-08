@@ -64,7 +64,7 @@ FileKeyValueStore::~FileKeyValueStore()
 
 // Key-Value use cases
 void
-FileKeyValueStore::setKeyValue(const HashedValue& key,EncodedValue value)
+FileKeyValueStore::setKeyValue(const HashedValue& key,EncodedValue&& value)
 {
   std::ofstream os;
   std::string keyHash(std::to_string(key.hash()));

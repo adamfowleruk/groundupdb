@@ -35,7 +35,7 @@ public:
   ~MemoryKeyValueStore();
 
   // Key-Value user functions
-  void                            setKeyValue(const HashedValue& key,EncodedValue value);
+  void                            setKeyValue(const HashedValue& key,EncodedValue&& value);
   EncodedValue                    getKeyValue(const HashedValue& key);
   void                            setKeyValue(const HashedValue& key,const Set& value);
   Set                             getKeyValueSet(const HashedValue& key);
@@ -55,7 +55,7 @@ public:
   ~FileKeyValueStore();
 
   // Key-Value use cases
-  void                            setKeyValue(const HashedValue& key,EncodedValue value);
+  void                            setKeyValue(const HashedValue& key,EncodedValue&& value);
   EncodedValue                    getKeyValue(const HashedValue& key);
   void                            setKeyValue(const HashedValue& key,const Set& value);
   Set                             getKeyValueSet(const HashedValue& key);
@@ -81,11 +81,11 @@ public:
   std::string                                 getDirectory(void);
 
   // Key-Value use cases
-  void                                        setKeyValue(const HashedValue& key,EncodedValue value);
-  void                                        setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket);
+  void                                        setKeyValue(const HashedValue& key,EncodedValue&& value);
+  void                                        setKeyValue(const HashedValue& key,EncodedValue&& value,const std::string& bucket);
   EncodedValue                                getKeyValue(const HashedValue& key);
   void                                        setKeyValue(const HashedValue& key,const Set& value);
-  void                                        setKeyValue(const HashedValue& key,const Set& value,std::string bucket);
+  void                                        setKeyValue(const HashedValue& key,const Set& value,const std::string& bucket);
   Set                                         getKeyValueSet(const HashedValue& key);
 
   // Query records functions

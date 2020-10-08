@@ -41,17 +41,17 @@ public:
   std::string                     getDirectory(void);
 
   // Key-Value use cases
-  void                            setKeyValue(const HashedValue& key,EncodedValue value);
-  void                            setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket);
+  void                            setKeyValue(const HashedValue& key,EncodedValue&& value);
+  void                            setKeyValue(const HashedValue& key,EncodedValue&& value,const std::string& bucket);
   EncodedValue                    getKeyValue(const HashedValue& key);
   void                            setKeyValue(const HashedValue& key,const Set& value);
-  void                            setKeyValue(const HashedValue& key,const Set& value,std::string bucket);
+  void                            setKeyValue(const HashedValue& key,const Set& value,const std::string& bucket);
   Set                             getKeyValueSet(const HashedValue& key);
 
   // Query functions
   std::unique_ptr<IQueryResult>    query(Query& query) const;
   std::unique_ptr<IQueryResult>    query(BucketQuery& query) const;
-  void                             indexForBucket(const HashedValue& key,std::string bucket);
+  void                             indexForBucket(const HashedValue& key,const std::string& bucket);
 
   // management functions
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname);
@@ -151,8 +151,8 @@ std::string EmbeddedDatabase::Impl::getDirectory() {
   return m_fullpath;
 }
 
-void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,EncodedValue value) {
-  m_keyValueStore->setKeyValue(key,value);
+void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,EncodedValue&& value) {
+  m_keyValueStore->setKeyValue(key,std::move(value));
 
 
   // QUESTION: What is the above storage mechanism paradigm?
@@ -166,12 +166,12 @@ EncodedValue EmbeddedDatabase::Impl::getKeyValue(const HashedValue& key) {
   return m_keyValueStore->getKeyValue(key);
 }
 
-void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket) {
-  setKeyValue(key,value);
+void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,EncodedValue&& value, const std::string& bucket) {
+  setKeyValue(key,std::move(value));
   indexForBucket(key,bucket);
 }
 
-void EmbeddedDatabase::Impl::indexForBucket(const HashedValue& key,std::string bucket) {
+void EmbeddedDatabase::Impl::indexForBucket(const HashedValue& key,const std::string& bucket) {
   // Add to bucket index
   EncodedValue idxKey("bucket::" + bucket);
   // query the key index
@@ -200,7 +200,7 @@ void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,const Set& value
   m_keyValueStore->setKeyValue(key,value);
 }
 
-void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,const Set& value,std::string bucket) {
+void EmbeddedDatabase::Impl::setKeyValue(const HashedValue& key,const Set& value,const std::string& bucket) {
   setKeyValue(key,value);
   indexForBucket(key,bucket);
 }
@@ -227,9 +227,9 @@ EmbeddedDatabase::Impl::query(BucketQuery& query) const {
   // query the key index
 
   //std::cout << "EDB::Impl:query fetching kv set for bucket with key: " << idxKey << std::endl;
-  std::unique_ptr<IQueryResult> r = std::make_unique<DefaultQueryResult>(m_indexStore->getKeyValueSet(Key<std::string>(idxKey)));
+  std::unique_ptr<IQueryResult> r = std::make_unique<DefaultQueryResult>(m_indexStore->getKeyValueSet(HashedKey(idxKey)));
   //std::cout << "EDB::Impl:query result size: " << r.get()->recordKeys()->size() << std::endl;
-  return r;
+  return std::move(r);
 }
 
 
@@ -312,12 +312,12 @@ std::string EmbeddedDatabase::getDirectory() {
   return mImpl->getDirectory();
 }
 
-void EmbeddedDatabase::setKeyValue(const HashedValue& key,EncodedValue value) {
-  mImpl->setKeyValue(key,value);
+void EmbeddedDatabase::setKeyValue(const HashedValue& key,EncodedValue&& value) {
+  mImpl->setKeyValue(key,std::move(value));
 }
 
-void EmbeddedDatabase::setKeyValue(const HashedValue& key,EncodedValue value, std::string bucket) {
-  mImpl->setKeyValue(key,value,bucket);
+void EmbeddedDatabase::setKeyValue(const HashedValue& key,EncodedValue&& value, const std::string& bucket) {
+  mImpl->setKeyValue(key,std::move(value),bucket);
 }
 
 EncodedValue EmbeddedDatabase::getKeyValue(const HashedValue& key) {
@@ -328,7 +328,7 @@ void EmbeddedDatabase::setKeyValue(const HashedValue& key,const Set& value) {
   mImpl->setKeyValue(key,value);
 }
 
-void EmbeddedDatabase::setKeyValue(const HashedValue& key,const Set& value,std::string bucket) {
+void EmbeddedDatabase::setKeyValue(const HashedValue& key,const Set& value,const std::string& bucket) {
   mImpl->setKeyValue(key,value,bucket);
 }
 

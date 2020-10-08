@@ -52,10 +52,11 @@ HashedValue::HashedValue(const HashedValue& from)
 
 HashedValue::HashedValue(const HashedValue&& from)
   : m_has_value(from.m_has_value),
-    m_data(from.m_data),
+    m_data(std::move(from.m_data)),
     m_length(from.m_length),
     m_hash(from.m_hash)
 {
+  //std::cout << "HashedValue::move-ctor" << std::endl;
   ;
 }
 
@@ -73,6 +74,15 @@ HashedValue::operator=(const HashedValue& other)
 HashedValue::HashedValue(const EncodedValue& from)
   : m_has_value(from.hasValue()),
     m_data(from.data()),
+    m_length(from.length()),
+    m_hash(from.hash())
+{
+  ;
+}
+
+HashedValue::HashedValue(EncodedValue&& from)
+  : m_has_value(from.hasValue()),
+    m_data(std::move(from.data())),
     m_length(from.length()),
     m_hash(from.hash())
 {

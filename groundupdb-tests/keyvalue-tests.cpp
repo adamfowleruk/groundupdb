@@ -34,7 +34,7 @@ TEST_CASE("keyvalue","[setKeyValue,getKeyValue]") {
     std::string key("simplestring");
     std::string val("Some highly valuable value");
     groundupdb::EncodedValue value(val);
-    db->setKeyValue(key,value);
+    db->setKeyValue(key,std::move(value));
     groundupdb::EncodedValue ev1 = db->getKeyValue(key);
     REQUIRE(0 != val.length()); // ensure it hasn't had its contents moved
     REQUIRE(ev1.hasValue());
@@ -51,7 +51,7 @@ TEST_CASE("keyvalue","[setKeyValue,getKeyValue]") {
     REQUIRE(value == ev1);
 
     groundupdb::EncodedValue value2("Some highly valuable value number 2");
-    db->setKeyValue(key,value2);
+    db->setKeyValue(key,std::move(value2));
     REQUIRE(value2 == db->getKeyValue(key));
 
     db->destroy();
@@ -70,7 +70,7 @@ TEST_CASE("keyvalue","[setKeyValue,getKeyValue]") {
     groundupdb::EncodedValue value("Some highly valuable value");
     std::string bucket("bucket 1");
     std::cout << "Setting key value with bucket" << std::endl;
-    db->setKeyValue(key, value, bucket);
+    db->setKeyValue(key, std::move(value), bucket);
     std::cout << "Calling get key value" << std::endl;
     REQUIRE(value == db->getKeyValue(key));
     std::cout << "Destroying DB" << std::endl;

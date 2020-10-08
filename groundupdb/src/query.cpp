@@ -60,17 +60,18 @@ DefaultQueryResult::DefaultQueryResult()
   ;
 }
 
-DefaultQueryResult::DefaultQueryResult(KeySet recordKeys)
+DefaultQueryResult::DefaultQueryResult(KeySet&& recordKeys)
   : m_recordKeys(std::move(recordKeys))
 {
   ;
 }
 
-DefaultQueryResult::DefaultQueryResult(Set recordKeys)
+DefaultQueryResult::DefaultQueryResult(Set&& recordKeys)
   : m_recordKeys(std::make_unique<std::unordered_set<HashedKey>>())
 {
-  for (auto& key : *recordKeys) {
-    m_recordKeys->insert(key);
+  m_recordKeys->reserve(recordKeys->size());
+  for (auto it = recordKeys->begin(); it != recordKeys->end(); ) {
+    m_recordKeys->insert(HashedKey(std::move(recordKeys->extract(it++).value())));
   }
 }
 
