@@ -24,6 +24,21 @@ The database aims to run on every platforms from an 8-bit microcontroller for ed
 
 The database is still young, but I hope to have a proof of concept on a multi-model database with query support that runs on multiple operating systems during the second half of 2020.
 
+### Current performance
+
+In embedded mode compiled for release these are the most recent performance results:-
+
+|Store Type|Operation|Qty|Measure|
+|---|---|---|---|
+|Memory|SET|1,619,040|Ops/sec|
+|Memory|GET|4,390,390|Ops/sec|
+|Memory|GET 1000 Keys in a bucket|1.124|ms
+|Memory|QUERY for keys in named bucket|0.719|ms
+|Memory cached File store (default)|SET|1,260.07|Ops/sec|
+|Memory cached File store (default)|GET|3,575,260|Ops/sec|
+|File store|SET|741.8|Ops/sec|
+|File store|GET|417,80.5|Ops/sec|
+
 ## Getting started
 
 You can either build with CMake or QtCreator. Either way executable and library files will be found under the relevant subdirectories for each target within the build folder.
