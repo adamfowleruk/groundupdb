@@ -255,7 +255,7 @@ FileKeyValueStore::loadKeysInto(
       if(".key" == p.path().extension()) {
         // If so, open file
 
-        std::string hashWithExtension = p.path().filename();
+        std::string hashWithExtension = p.path().filename().string();
         // ASSUMPTION always ends with .kv
         std::string strhash = hashWithExtension.substr(0,hashWithExtension.length() - 4); // BUG0000001
         // TODO check that file name is long enough

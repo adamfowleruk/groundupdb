@@ -18,6 +18,8 @@ under the License.
 #include "types.h"
 #include "extensions/highwayhash.h"
 
+#include <algorithm>
+
 namespace groundupdb {
 
 HashedValue::HashedValue(const Bytes& data,std::size_t length,std::size_t hash)
@@ -39,15 +41,6 @@ HashedValue::HashedValue()
 }
 
 /** Copy/move constuctors and operators **/
-HashedValue::HashedValue(HashedValue& from)
-  : m_has_value(from.m_has_value),
-    m_data(from.m_data),
-    m_length(from.m_length),
-    m_hash(from.m_hash)
-{
-  ;
-}
-
 HashedValue::HashedValue(const HashedValue& from)
   : m_has_value(from.m_has_value),
     m_data(from.m_data),
@@ -92,9 +85,8 @@ HashedValue::HashedValue(std::string from)
 {
   m_length = from.length();
   m_data.reserve(m_length);
-  for (auto& c : from) {
-    m_data.push_back((std::byte)c);
-  }
+  std::transform(from.begin(), from.end(), std::back_inserter(m_data),
+                 [] (auto c) { return static_cast<std::byte>(c); });
   // TODO use correct hasher for current database connection, with correct initialisation settings
   DefaultHash h1{1,2,3,4};
   m_hash = h1(from);
@@ -115,8 +107,11 @@ HashedValue::hasValue() const { return m_has_value; }
 bool
 HashedValue::operator==(const HashedValue& other) const
 {
+  if (m_hash != other.m_hash) {
+    return false;
+  }
   // compare hash first as generally it will be faster most often
-  if (m_hash != other.m_hash || m_has_value != other.m_has_value || m_length != other.m_length) {
+  if (m_length != other.m_length) {
     return false;
   }
   // only do a data wise comparison if you must (highly, highly unlikely - requires hash collision)

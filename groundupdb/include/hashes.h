@@ -18,6 +18,7 @@ under the License.
 #ifndef HASHES_H
 #define HASHES_H
 
+#include "types.h"
 #include <string>
 
 namespace groundupdb {
@@ -35,6 +36,7 @@ public:
   std::size_t operator() (const HashedValue& s) const noexcept;
   std::size_t operator() (const EncodedValue& s) const noexcept;
   std::size_t operator() (const std::string& s) const noexcept;
+  std::size_t operator() (const std::vector<std::byte>& bytes) const noexcept;
   std::size_t operator() (const char* data,std::size_t length) const noexcept;
 
   class Impl;

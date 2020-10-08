@@ -33,6 +33,9 @@ public:
   Impl(std::string dbname, std::string fullpath);
   Impl(std::string dbname, std::string fullpath,
        std::unique_ptr<KeyValueStore>& kvStore);
+  Impl(std::string dbname, std::string fullpath,
+       std::unique_ptr<KeyValueStore>& kvStore,
+       std::unique_ptr<KeyValueStore>& idxStore);
   ~Impl();
 
   std::string                     getDirectory(void);
@@ -53,6 +56,7 @@ public:
   // management functions
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname);
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore);
+  static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore,std::unique_ptr<KeyValueStore>& idxStore);
   static  const std::unique_ptr<IDatabase>    load(std::string dbname);
   void                        destroy();
 
@@ -86,6 +90,13 @@ EmbeddedDatabase::Impl::Impl(std::string dbname, std::string fullpath,
   m_indexStore = std::move(memIndexStore);
 }
 
+EmbeddedDatabase::Impl::Impl(std::string dbname, std::string fullpath,
+     std::unique_ptr<KeyValueStore>& kvStore, std::unique_ptr<KeyValueStore>& indexStore)
+  : m_name(dbname), m_fullpath(fullpath), m_keyValueStore(kvStore.release()), m_indexStore(indexStore.release())
+{
+  ;
+}
+
 
 EmbeddedDatabase::Impl::~Impl() {
   ;
@@ -111,6 +122,17 @@ const std::unique_ptr<IDatabase> EmbeddedDatabase::Impl::createEmpty(std::string
   }
   std::string dbfolder(basedir + "/" + dbname);
   return std::make_unique<EmbeddedDatabase::Impl>(dbname,dbfolder,kvStore);
+}
+
+
+const std::unique_ptr<IDatabase> EmbeddedDatabase::Impl::createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore,
+  std::unique_ptr<KeyValueStore>& idxStore) {
+  std::string basedir(".groundupdb");
+  if (!fs::exists(basedir)) {
+      fs::create_directory(basedir);
+  }
+  std::string dbfolder(basedir + "/" + dbname);
+  return std::make_unique<EmbeddedDatabase::Impl>(dbname,dbfolder,kvStore,idxStore);
 }
 
 const std::unique_ptr<IDatabase> EmbeddedDatabase::Impl::load(std::string dbname) {
@@ -270,6 +292,10 @@ const std::unique_ptr<IDatabase> EmbeddedDatabase::createEmpty(std::string dbnam
 
 const std::unique_ptr<IDatabase> EmbeddedDatabase::createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore) {
   return EmbeddedDatabase::Impl::createEmpty(dbname, kvStore);
+}
+
+const std::unique_ptr<IDatabase> EmbeddedDatabase::createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore,std::unique_ptr<KeyValueStore>& idxStore) {
+  return EmbeddedDatabase::Impl::createEmpty(dbname, kvStore, idxStore);
 }
 
 const std::unique_ptr<IDatabase> EmbeddedDatabase::load(std::string dbname) {

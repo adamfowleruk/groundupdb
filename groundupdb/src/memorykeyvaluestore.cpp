@@ -19,6 +19,7 @@ under the License.
 #include "extensions/highwayhash.h"
 
 #include <unordered_map>
+#include <optional>
 
 namespace groundupdbext {
 

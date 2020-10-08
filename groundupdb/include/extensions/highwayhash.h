@@ -35,9 +35,10 @@ public:
   std::size_t operator() (const groundupdb::HashedValue& s) const noexcept;
   std::size_t operator() (const groundupdb::EncodedValue& s) const noexcept;
   std::size_t operator() (const std::string& s) const noexcept;
+  std::size_t operator() (const groundupdb::Bytes& bytes) const noexcept;
   std::size_t operator() (const char* data,std::size_t length) const noexcept;
 private:
-  const HHKey m_key HH_ALIGNAS(64);
+  HHKey m_key HH_ALIGNAS(64); // defining as const will delete copy ctor in Windows MSVCC feature-15
   HighwayHashCatT<HH_TARGET>* m_hh;
   HHResult64* m_result;
 };

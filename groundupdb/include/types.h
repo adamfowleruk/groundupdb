@@ -38,22 +38,21 @@ using Bytes = std::vector<std::byte>;
 template<class T>
 class Key {
 private:
-  const T m_data;
+  Bytes m_data;
 public:
-  Key(const T& t) : m_data(t) {}
+  Key(const T& t) : m_data() {
+    m_data.reserve(t.size()); 
+    std::transform(t.begin(), t.end(), std::back_inserter(m_data),
+                   [] (auto c) { return static_cast<std::byte>(c); });
+  }
   virtual ~Key() = default;
 
-  template<typename OutputIt>
-  OutputIt copy_to(OutputIt d_first) const {
-    return std::copy(m_data.begin(),m_data.end(),d_first);
-  }
-
-  const T& value() const {
+  const Bytes& data() const {
     return m_data;
   }
 
   std::size_t length() const {
-    return m_data.length();
+    return m_data.size();
   }
 };
 
@@ -68,7 +67,7 @@ class HashedValue {
 private:
   bool m_has_value;
   Bytes m_data; // original key data binary representation
-  int m_length; // binary length in bytes
+  std::size_t m_length; // binary length in bytes
   std::size_t m_hash; // one-way hash of the key binary representation using the server's specified algorithm
 public:
   //HashedValue(Bytes data,int length,std::size_t hash);
@@ -79,17 +78,21 @@ public:
     : m_has_value(true)
   {
     m_length = from.length();
-    m_data.reserve(m_length);
-    for (auto& d : from.value()) {
-      m_data.push_back((std::byte)d);
-    }
+    //m_data.reserve(m_length);
+    //from.copy_to(m_data.begin());
+
+    m_data = from.data(); // copy ctor
+
+    // for (auto& d : from.value()) {
+    //   m_data.push_back((std::byte)d);
+    // }
     // TODO use correct hasher for current database connection, with correct initialisation settings
     DefaultHash h1{};
-    m_hash = h1(from.value());
+    m_hash = h1(from.data());
   }
 
   /** Copy/move constuctors and operators **/
-  HashedValue(HashedValue& from);
+  //HashedValue(HashedValue& from);
   HashedValue(const HashedValue& from);
   HashedValue(const HashedValue&& from);
   HashedValue& operator=(const HashedValue& other);
@@ -153,7 +156,7 @@ public:
   EncodedValue() : m_has_value(false), m_type(Type::UNKNOWN), m_value() {}
 
   /** Copy/move constuctors and operators **/
-  EncodedValue(EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
+  //EncodedValue(EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue(const EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue(const EncodedValue&& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue& operator=(const EncodedValue& other) {

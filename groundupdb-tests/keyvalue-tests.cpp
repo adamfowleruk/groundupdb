@@ -39,7 +39,7 @@ TEST_CASE("keyvalue","[setKeyValue,getKeyValue]") {
     REQUIRE(0 != val.length()); // ensure it hasn't had its contents moved
     REQUIRE(ev1.hasValue());
     REQUIRE(val.length() == ev1.length());
-    char ev1chars[ev1.length() + 1];
+    char* ev1chars = new char[ev1.length() + 1];
     int pos = 0;
     for (auto& c : ev1.data()) {
       ev1chars[pos++] = (const char)c;

@@ -33,6 +33,10 @@ std::unique_ptr<IDatabase> GroundUpDB::createEmptyDB(std::string &dbname,std::un
   return EmbeddedDatabase::createEmpty(dbname,kvStore);
 }
 
+std::unique_ptr<IDatabase> GroundUpDB::createEmptyDB(std::string &dbname,std::unique_ptr<KeyValueStore>& kvStore,std::unique_ptr<KeyValueStore>& idxStore) {
+  return EmbeddedDatabase::createEmpty(dbname,kvStore,idxStore);
+}
+
 std::unique_ptr<IDatabase> GroundUpDB::loadDB(std::string &dbname) {
   return EmbeddedDatabase::load(dbname);
 }

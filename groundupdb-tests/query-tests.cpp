@@ -66,7 +66,7 @@ TEST_CASE("query","[query]") {
       std::cout << "  Getting result data" << std::endl;
       groundupdb::Bytes bytes = it->data();
       std::cout << "  Creating char array" << std::endl;
-      char chars[bytes.size() + 1];
+      char* chars = new char[bytes.size() + 1];
       int pos = 0;
       std::cout << "  Filling char array" << std::endl;
       for (auto& c : bytes) {
@@ -138,7 +138,7 @@ TEST_CASE("query","[query]") {
       std::cout << "  Getting result data" << std::endl;
       groundupdb::Bytes bytes = it->data();
       std::cout << "  Creating char array" << std::endl;
-      char chars[bytes.size() + 1];
+      char* chars = new char[bytes.size() + 1];
       int pos = 0;
       std::cout << "  Filling char array" << std::endl;
       for (auto& c : bytes) {
