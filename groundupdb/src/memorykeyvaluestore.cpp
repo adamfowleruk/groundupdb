@@ -75,14 +75,14 @@ MemoryKeyValueStore::~MemoryKeyValueStore()
 
 // Key-Value use cases
 void
-MemoryKeyValueStore::setKeyValue(const HashedValue& key,EncodedValue value)
+MemoryKeyValueStore::setKeyValue(const HashedValue& key,EncodedValue&& value)
 {
   // Also write to our in-memory unordered map
   // Note: insert on unordered_map does NOT perform an insert if the key already exists
   mImpl->m_keyValueStore.erase(key);
   mImpl->m_keyValueStore.insert({key,value});
   if (mImpl->m_cachedStore) {
-    mImpl->m_cachedStore->get()->setKeyValue(key,value);
+    mImpl->m_cachedStore->get()->setKeyValue(key,EncodedValue(value)); // force copy construction of a temporary
   }
 }
 

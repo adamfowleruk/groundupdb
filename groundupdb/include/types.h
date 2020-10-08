@@ -54,6 +54,14 @@ public:
   std::size_t length() const {
     return m_data.size();
   }
+
+  bool operator==(const Key<T>& other) const {
+    return m_data == other.m_data;
+  }
+
+  bool operator!=(const Key<T>& other) const {
+    return ! *this==other;
+  }
 };
 
 class EncodedValue;
@@ -99,6 +107,7 @@ public:
 
   /** Conversion constuctors **/
   HashedValue(const EncodedValue& from);
+  HashedValue(EncodedValue&& from);
 
   /** Standard type convenience constructors **/
   HashedValue(std::string from);
@@ -158,7 +167,9 @@ public:
   /** Copy/move constuctors and operators **/
   //EncodedValue(EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
   EncodedValue(const EncodedValue& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
-  EncodedValue(const EncodedValue&& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(from.m_value) {}
+  EncodedValue(const EncodedValue&& from) : m_has_value(from.m_has_value), m_type(from.m_type), m_value(std::move(from.m_value)) {
+    //std::cout << "EncodedValue::move-ctor" << std::endl;
+  }
   EncodedValue& operator=(const EncodedValue& other) {
     m_has_value = other.m_has_value;
     m_type = other.m_type;
@@ -219,6 +230,18 @@ namespace std
     struct hash<groundupdb::HashedValue>
     {
         size_t operator()(const groundupdb::HashedValue& v) const
+        {
+          std::size_t hv = 0;
+          for (auto& vpart : v.data()) {
+            hv = hv ^ (std::to_integer<std::size_t>(vpart) << 1);
+          }
+          return hv;
+        }
+    };
+    template<typename T>
+    struct hash<groundupdb::Key<T>>
+    {
+        size_t operator()(const groundupdb::Key<T>& v) const
         {
           std::size_t hv = 0;
           for (auto& vpart : v.data()) {

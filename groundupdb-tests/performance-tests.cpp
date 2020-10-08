@@ -37,14 +37,14 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::string dbname("myemptydb");
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname));
 
-    int total = 100000;
+    int total = 100'000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<std::string,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
@@ -55,7 +55,7 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      db->setKeyValue(it->first,it->second);
+      db->setKeyValue(it->first,std::move(it->second));
       i++;
       if (0 == i % every) {
         std::cout << ".";
@@ -121,14 +121,14 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
-    int total = 100000;
+    int total = 100'000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
@@ -139,7 +139,7 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      db->setKeyValue(it->first,it->second);
+      db->setKeyValue(it->first,std::move(it->second));
       i++;
       if (0 == i % every) {
         std::cout << ".";
@@ -186,14 +186,14 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::FileKeyValueStore>(fullpath);
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore));
 
-    int total = 100000;
+    int total = 100'000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
@@ -204,7 +204,7 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      db->setKeyValue(it->first,it->second);
+      db->setKeyValue(it->first,std::move(it->second));
       i++;
       if (0 == i % every) {
         std::cout << ".";
@@ -241,7 +241,9 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::cout << "Tests complete" << std::endl;
     db->destroy();
   }
+}
 
+TEST_CASE("query-performance","[!hide][performance][query]") {
 
   SECTION("Bucket query performance test - In-memory key-value store") {
     std::cout << "====== In-memory key-value store performance test - Bucket query vs. key fetch ======" << std::endl;
@@ -250,34 +252,34 @@ TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyV
     std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
-    int total = 100000;
-    int every = 1000;
+    int total = 1'000'000;
+    int every =     1'000;
     std::string bucket("my bucket");
 
     std::unordered_set<std::string> keysInBuckets;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
       if (0 == i%every) {
         keysInBuckets.insert(std::to_string(i));
       }
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
-    // 2. Store 100 000 key-value pairs (no overlap)
+    // 2. Store key-value pairs (no overlap)
     // Raw storage speed
     std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     i=0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
       if (0 == i%every) {
-        db->setKeyValue(it->first,it->second,bucket);
+        db->setKeyValue(it->first,std::move(it->second),bucket);
       } else {
-        db->setKeyValue(it->first,it->second);
+        db->setKeyValue(it->first,std::move(it->second));
       }
       i++;
     }
@@ -345,32 +347,45 @@ TEST_CASE("profiling-100k","[!hide][performance][memory][100k]") {
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
     int total = 100'000;
+    long every = 1'000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     keyValues.reserve(total);
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
-    for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
-    }
-    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
-
-    long every = 10'000;
-    // 2. Store key-value pairs (no overlap)
-    // Raw storage speed
-    std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    i = 0;
-    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      db->setKeyValue(it->first,it->second);
-      i++;
+    for (; i < total;i++) {
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
       if (0 == i % every) {
         std::cout << ".";
       }
     }
     std::cout << std::endl;
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
+
+    // 2. Store key-value pairs (no overlap)
+    // Raw storage speed
+    std::cout << "====== SET ======" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    i = 0;
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      db->setKeyValue(it->first,std::move(it->second));
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
+    }
+    std::cout << std::endl;
+    end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
               << " seconds" << std::endl;
@@ -412,31 +427,44 @@ TEST_CASE("profiling-1m","[!hide][performance][memory][1m]") {
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
     int total = 1'000'000;
+    long every = 10'000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<std::string,std::string> keyValues;
+    std::vector<std::pair<groundupdb::HashedKey,groundupdb::EncodedValue>> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
-    for (; i < total;i++) {
-      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
-    }
-    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
-
-    long every = 100'000;
-    // 2. Store key-value pairs (no overlap)
-    // Raw storage speed
-    std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    i = 0;
-    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      db->setKeyValue(it->first,it->second);
-      i++;
+    for (; i < total;i++) {
+      keyValues.push_back(std::make_pair(groundupdb::HashedKey(std::to_string(i)),groundupdb::EncodedValue(std::to_string(i)))); // C++17, uses std::forward
       if (0 == i % every) {
         std::cout << ".";
       }
     }
     std::cout << std::endl;
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
+
+    // 2. Store key-value pairs (no overlap)
+    // Raw storage speed
+    std::cout << "====== SET ======" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    i = 0;
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      db->setKeyValue(it->first,std::move(it->second));
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
+    }
+    std::cout << std::endl;
+    end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
               << " seconds" << std::endl;
@@ -452,7 +480,7 @@ TEST_CASE("profiling-1m","[!hide][performance][memory][1m]") {
     std::cout << "====== GET ======" << std::endl;
     begin = std::chrono::steady_clock::now();
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
-      result = db->getKeyValue(it->first);
+      result = std::move(db->getKeyValue(it->first));
     }
     end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "

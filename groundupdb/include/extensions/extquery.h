@@ -27,8 +27,8 @@ using namespace groundupdb;
 class DefaultQueryResult: public IQueryResult {
 public:
   DefaultQueryResult();
-  DefaultQueryResult(KeySet recordKeys);
-  DefaultQueryResult(Set recordKeys);
+  DefaultQueryResult(KeySet&& recordKeys);
+  DefaultQueryResult(Set&& recordKeys);
   virtual ~DefaultQueryResult() = default;
 
   const KeySet& recordKeys();

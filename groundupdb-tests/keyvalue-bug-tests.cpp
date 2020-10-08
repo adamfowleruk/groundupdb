@@ -38,14 +38,14 @@ TEST_CASE("kv-bugs","[setKeyValue,getKeyValue]") {
 
       // We know we have been successful when:-
       // 1. The retrieved value is the same as the stored value
-      db->setKeyValue(key,value);
+      db->setKeyValue(key,std::move(value));
       REQUIRE(value == db->getKeyValue(key));
     }
 
     std::unique_ptr<groundupdb::IDatabase> db(
           groundupdb::GroundUpDB::loadDB(dbname));
     groundupdb::EncodedValue value2("Some highly valuable value number 2");
-    REQUIRE_NOTHROW(db->setKeyValue(key,value2)); // BLOWS UP
+    REQUIRE_NOTHROW(db->setKeyValue(key,std::move(value2))); // BLOWS UP
     REQUIRE(value2 == db->getKeyValue(key));
 
     db->destroy();

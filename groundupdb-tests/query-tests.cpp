@@ -44,10 +44,10 @@ TEST_CASE("query","[query]") {
     std::string key4("fourth string");
     groundupdb::EncodedValue value4("fourth valuable value");
     std::string bucket("bucket 1");
-    db->setKeyValue(key,value,bucket);
-    db->setKeyValue(key2,value2);
-    db->setKeyValue(key3,value3);
-    db->setKeyValue(key4,value4,bucket);
+    db->setKeyValue(key,std::move(value),bucket);
+    db->setKeyValue(key2,std::move(value2));
+    db->setKeyValue(key3,std::move(value3));
+    db->setKeyValue(key4,std::move(value4),bucket);
 
     // Note set with bucket proven in keyvalue-tests.cpp
 
@@ -116,10 +116,10 @@ TEST_CASE("query","[query]") {
     std::string key4("fourth string");
     groundupdb::EncodedValue value4("fourth valuable value");
     std::string bucket("bucket 1");
-    db->setKeyValue(key,value,bucket);
-    db->setKeyValue(key2,value2);
-    db->setKeyValue(key3,value3);
-    db->setKeyValue(key4,value4,bucket);
+    db->setKeyValue(key,std::move(value),bucket);
+    db->setKeyValue(key2,std::move(value2));
+    db->setKeyValue(key3,std::move(value3));
+    db->setKeyValue(key4,std::move(value4),bucket);
 
     // Note set with bucket proven in keyvalue-tests.cpp
 
