@@ -2,13 +2,15 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: ''
+labels: 'enhancement'
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Please start with a use case description for a USER of this work**
+[Who] As a ?????
+[What] I need to ???
+[Value] In order to achieve ??? and realise ??? benefit
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
