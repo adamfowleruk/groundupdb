@@ -17,6 +17,7 @@ under the License.
 */
 #include "extensions/highwayhash.h"
 #include "hashes.h"
+#include "types.h"
 
 namespace groundupdb {
 
@@ -63,6 +64,11 @@ DefaultHash::operator() (const HashedValue& s) const noexcept {
 std::size_t
 DefaultHash::operator() (const EncodedValue& s) const noexcept {
   return mImpl->m_hasher(s);
+}
+
+std::size_t
+DefaultHash::operator() (const std::vector<std::byte>& bytes) const noexcept {
+  return mImpl->m_hasher(bytes);
 }
 
 } // end namespace

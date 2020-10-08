@@ -26,7 +26,7 @@ under the License.
 #include "groundupdb/groundupdb.h"
 #include "groundupdb/groundupdbext.h"
 
-TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getKeyValue]") {
+TEST_CASE("Measure basic performance","[!hide][performance][setKeyValue][getKeyValue]") {
 
   // Story:-
   //   [Who]   As a database administrator
@@ -48,13 +48,20 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
+    long every = 1000;
     // 2. Store 100 000 key-value pairs (no overlap)
     // Raw storage speed
     std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
       db->setKeyValue(it->first,it->second);
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
     }
+    std::cout << std::endl;
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
@@ -107,16 +114,17 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
   }
 
 
-  SECTION("Store and Retrieve 100 000 keys - In-memory key-value store") {
+  SECTION("perf-100k-memory") {
     std::cout << "====== In-memory key-value store performance test ======" << std::endl;
     std::string dbname("myemptydb");
     std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
-    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore));
+    std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
     int total = 100000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<std::string,std::string> keyValues;
+    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
@@ -124,13 +132,20 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
+    long every = 1000;
     // 2. Store 100 000 key-value pairs (no overlap)
     // Raw storage speed
     std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
       db->setKeyValue(it->first,it->second);
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
     }
+    std::cout << std::endl;
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
@@ -161,7 +176,7 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     std::cout << "Tests complete" << std::endl;
     db->destroy();
   }
-
+  
   // Now do the same for pure disc backed storage
 
   SECTION("Store and Retrieve 100 000 keys - File based key-value store") {
@@ -174,7 +189,7 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     int total = 100000;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<std::string,std::string> keyValues;
+    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
@@ -182,13 +197,20 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     }
     std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
 
+    long every = 1000;
     // 2. Store 100 000 key-value pairs (no overlap)
     // Raw storage speed
     std::cout << "====== SET ======" << std::endl;
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i = 0;
     for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
       db->setKeyValue(it->first,it->second);
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
     }
+    std::cout << std::endl;
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     std::cout << "  " << keyValues.size() << " completed in "
               << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
@@ -225,7 +247,8 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     std::cout << "====== In-memory key-value store performance test - Bucket query vs. key fetch ======" << std::endl;
     std::string dbname("myemptydb");
     std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
-    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore));
+    std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
 
     int total = 100000;
     int every = 1000;
@@ -234,7 +257,7 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     std::unordered_set<std::string> keysInBuckets;
 
     // 1. Pre-generate the keys and values in memory (so we don't skew the test)
-    std::unordered_map<std::string,std::string> keyValues;
+    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
     long i = 0;
     std::cout << "Pre-generating key value pairs..." << std::endl;
     for (; i < total;i++) {
@@ -310,4 +333,138 @@ TEST_CASE("Measure basic performance","[!hide],[performance],[setKeyValue],[getK
     std::cout << "Tests complete" << std::endl;
     db->destroy();
   }
+}
+
+TEST_CASE("profiling-100k","[!hide][performance][memory][100k]") {
+  
+  SECTION("perf-100k-memory") {
+    std::cout << "====== In-memory key-value store performance test - 100k ======" << std::endl;
+    std::string dbname("myemptydb");
+    std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
+
+    int total = 100'000;
+
+    // 1. Pre-generate the keys and values in memory (so we don't skew the test)
+    std::unordered_map<groundupdb::HashedKey,std::string> keyValues;
+    keyValues.reserve(total);
+    long i = 0;
+    std::cout << "Pre-generating key value pairs..." << std::endl;
+    for (; i < total;i++) {
+      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+    }
+    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
+
+    long every = 10'000;
+    // 2. Store key-value pairs (no overlap)
+    // Raw storage speed
+    std::cout << "====== SET ======" << std::endl;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i = 0;
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      db->setKeyValue(it->first,it->second);
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
+    }
+    std::cout << std::endl;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+    std::cout << std::endl;
+
+    // 3. Retrieve key-value pairs (no overlap)
+    // Raw retrieval speed
+    std::string aString("blank");
+    groundupdb::EncodedValue result(aString);
+    std::cout << "====== GET ======" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      result = db->getKeyValue(it->first);
+    }
+    end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+
+    // 7. Tear down
+    std::cout << "Tests complete" << std::endl;
+    db->destroy();
+  }
+}
+
+TEST_CASE("profiling-1m","[!hide][performance][memory][1m]") {
+  
+  SECTION("perf-1m-memory") {
+    std::cout << "====== In-memory key-value store performance test - 1m ======" << std::endl;
+    std::string dbname("myemptydb");
+    std::unique_ptr<groundupdb::KeyValueStore> memoryStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::KeyValueStore> memoryIndexStore = std::make_unique<groundupdbext::MemoryKeyValueStore>();
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname, memoryStore, memoryIndexStore));
+
+    int total = 1'000'000;
+
+    // 1. Pre-generate the keys and values in memory (so we don't skew the test)
+    std::unordered_map<std::string,std::string> keyValues;
+    long i = 0;
+    std::cout << "Pre-generating key value pairs..." << std::endl;
+    for (; i < total;i++) {
+      keyValues.emplace(std::to_string(i),std::to_string(i)); // C++11, uses std::forward
+    }
+    std::cout << "Key size is max " << std::to_string(total - 1).length() << " bytes" << std::endl;
+
+    long every = 100'000;
+    // 2. Store key-value pairs (no overlap)
+    // Raw storage speed
+    std::cout << "====== SET ======" << std::endl;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    i = 0;
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      db->setKeyValue(it->first,it->second);
+      i++;
+      if (0 == i % every) {
+        std::cout << ".";
+      }
+    }
+    std::cout << std::endl;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+    std::cout << std::endl;
+
+    // 3. Retrieve key-value pairs (no overlap)
+    // Raw retrieval speed
+    std::string aString("blank");
+    groundupdb::EncodedValue result(aString);
+    std::cout << "====== GET ======" << std::endl;
+    begin = std::chrono::steady_clock::now();
+    for (auto it = keyValues.begin(); it != keyValues.end(); it++) {
+      result = db->getKeyValue(it->first);
+    }
+    end = std::chrono::steady_clock::now();
+    std::cout << "  " << keyValues.size() << " completed in "
+              << (std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() / 1000000.0)
+              << " seconds" << std::endl;
+    std::cout << "  "
+              << (keyValues.size() * 1000000.0 / std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count())
+              << " requests per second" << std::endl;
+
+    // 7. Tear down
+    std::cout << "Tests complete" << std::endl;
+    db->destroy();
+  }
+
 }

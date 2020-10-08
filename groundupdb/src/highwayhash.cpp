@@ -39,8 +39,8 @@ HighwayHash::HighwayHash(std::uint64_t s1,std::uint64_t s2,std::uint64_t s3,std:
 }
 
 HighwayHash::~HighwayHash() {
-  delete m_hh;
-  delete m_result;
+  //delete m_hh;
+  //delete m_result; // for windows - why does this help???
 }
 
 std::size_t
@@ -61,19 +61,21 @@ HighwayHash::operator() (const char* data,std::size_t length) const noexcept {
 
 std::size_t
 HighwayHash::operator() (const groundupdb::HashedValue& data) const noexcept {
-  m_hh->Reset(m_key);
-  for (auto& b : data.data()) {
-    m_hh->Append((const char*)&b,sizeof(b));
-  }
-  m_hh->Finalize(m_result);
-  return *m_result;
+  return data.hash();
+  // TODO ensure the hash has the same basis as that required by this class
 }
 
 std::size_t
 HighwayHash::operator() (const groundupdb::EncodedValue& data) const noexcept {
+  return data.hash();
+  // TODO ensure the hash has the same basis as that required by this class
+}
+
+std::size_t
+HighwayHash::operator() (const groundupdb::Bytes& data) const noexcept {
   m_hh->Reset(m_key);
-  for (auto& b : data.data()) {
-    m_hh->Append((const char*)&b,sizeof(b));
+  for (auto iter = data.begin();iter != data.end();++iter) {
+    m_hh->Append((const char*)&*iter,sizeof(*iter));
   }
   m_hh->Finalize(m_result);
   return *m_result;

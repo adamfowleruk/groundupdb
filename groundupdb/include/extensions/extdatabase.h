@@ -73,6 +73,9 @@ public:
   EmbeddedDatabase(std::string dbname, std::string fullpath);
   EmbeddedDatabase(std::string dbname, std::string fullpath,
                    std::unique_ptr<KeyValueStore>& kvStore);
+  EmbeddedDatabase(std::string dbname, std::string fullpath,
+                   std::unique_ptr<KeyValueStore>& kvStore,
+                   std::unique_ptr<KeyValueStore>& idxStore);
   ~EmbeddedDatabase();
 
   std::string                                 getDirectory(void);
@@ -92,6 +95,7 @@ public:
   // management functions
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname);
   static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore);
+  static  const std::unique_ptr<IDatabase>    createEmpty(std::string dbname,std::unique_ptr<KeyValueStore>& kvStore,std::unique_ptr<KeyValueStore>& idxStore);
   static  const std::unique_ptr<IDatabase>    load(std::string dbname);
   void                        destroy();
 

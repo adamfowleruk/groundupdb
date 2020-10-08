@@ -83,12 +83,9 @@ TEST_CASE("Hashing","[set,get]") {
     groundupdb::Key<std::string> k1("somekey");
     groundupdb::Key<std::string> k2("somekey");
     groundupdb::Key<std::string> k3("someotherkey");
-    char buffer1[15]{'0'};
-    char buffer2[15]{'0'};
-    char buffer3[15]{'0'};
-    k1.copy_to(buffer1);
-    k2.copy_to(buffer2);
-    k3.copy_to(buffer3);
+    std::string buffer1("somekey");
+    std::string buffer2("somekey");
+    std::string buffer3("someotherkey");
     groundupdbext::HighwayHash h1{1,2,3,4};
     std::size_t hv1 = h1(buffer1);
     std::size_t hv2 = h1(buffer2);
