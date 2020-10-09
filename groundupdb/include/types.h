@@ -25,6 +25,7 @@ under the License.
 #include <fstream>
 #include <unordered_set>
 #include <functional>
+#include <numeric>
 
 // TODO find a way around including the below (its internals)
 #include "hashes.h"
@@ -110,7 +111,72 @@ public:
   HashedValue(EncodedValue&& from);
 
   /** Standard type convenience constructors **/
-  HashedValue(std::string from);
+  /**
+ * Accept any basic type. Templated to minimise coding.
+ * Good basic reference on techniques used here: 
+ * https://www.internalpointers.com/post/quick-primer-type-traits-modern-cpp
+ */
+  template <typename VT>
+  HashedValue(VT from) : m_has_value(true), m_data(), m_length(0), m_hash(0)
+  {
+    // first remove reference
+    auto v = std::decay_t<VT>(from);
+    // second check if its a basic type and convert to bytes
+    if constexpr(std::is_same_v<std::string, decltype(v)>) {
+      //std::cout << "DECLTYPE std::string" << std::endl;
+      m_length = from.length();
+      m_data.reserve(m_length);
+      std::transform(from.begin(), from.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+    } else if constexpr (std::is_same_v<char *, decltype(v)>) {
+      //std::cout << "DECLTYPE char ptr" << std::endl;
+      std::string s(v);
+      m_length = s.length();
+      m_data.reserve(m_length);
+      std::transform(s.begin(), s.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+    } else if constexpr (std::is_same_v<const char*, decltype(v)>) {
+      //std::cout << "DECLTYPE char array" << std::endl;
+      std::string s(v);
+      m_length = s.length();
+      m_data.reserve(m_length);
+      std::transform(s.begin(), s.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+    } else if constexpr(std::numeric_limits<VT>::is_integer) {
+      //std::cout << "DECLTYPE numeric" << std::endl;
+      m_length = sizeof(v) / sizeof(std::byte);
+      auto vcopy = v; // copy ready for modification
+      m_data.reserve(m_length);
+      for (auto i = std::size_t(0); i < m_length; i++)
+      {
+        // NOTE This implements little-endian conversion TODO do we want this?
+        m_data.push_back(static_cast<std::byte>((vcopy & 0xFF)));
+        vcopy = vcopy >> sizeof(std::byte);
+      }
+    } else if constexpr(std::is_floating_point_v<VT>) {
+      //std::cout << "DECLTYPE float" << std::endl;
+      m_length = sizeof(v) / sizeof(std::byte);
+      auto vcopy = v; // copy ready for modification
+      unsigned int asInt = *((int *)&vcopy);
+      m_data.reserve(m_length);
+      for (auto i = std::size_t(0); i < m_length; i++)
+      {
+        // NOTE This implements little-endian conversion TODO do we want this?
+        m_data.push_back(static_cast<std::byte>((asInt & 0xFF)));
+        asInt = asInt >> sizeof(std::byte);
+      }
+    } else if constexpr (std::is_same_v<Bytes, decltype(v)>) {
+      m_length = from.size();
+      m_data = std::move(from);
+    } else {
+      throw std::runtime_error(typeid(v).name());
+      // TODO we don't support it, fire off a compiler warning
+      //static_assert(false, "Must be a supported type, or convertible to std::vector<std::byte>!");
+    }
+    // TODO use correct hasher for current database connection, with correct initialisation settings
+    DefaultHash h1{1, 2, 3, 4};
+    m_hash = h1(m_data);
+  }
 
   virtual ~HashedValue() = default;
   const Bytes data() const;
@@ -178,7 +244,8 @@ public:
   };
 
   /** Conversion constuctors **/
-  EncodedValue(const std::string& from): m_has_value(true), m_type(Type::CPP), m_value(HashedValue{from}) {}
+  template<typename VT>
+  EncodedValue(const VT &from) : m_has_value(true), m_type(Type::CPP), m_value(HashedValue{from}) {}
 
   /** Class methods **/
   Type type() const { return m_type; }

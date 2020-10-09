@@ -7,6 +7,7 @@ add_executable(groundupdb-tests
 	keyvalue-bug-tests.cpp
 	performance-tests.cpp
 	query-tests.cpp
+	datatypes-tests.cpp
 )
 
 include_directories(${groundupdb_SOURCE_DIR})
