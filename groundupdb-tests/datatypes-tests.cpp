@@ -19,8 +19,20 @@ under the License.
 
 #include "groundupdb/groundupdb.h"
 
+#include <array>
+#include <vector>
+#include <deque>
+#include <forward_list>
+#include <list>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
+#include <stack>
+#include <queue>
+
 template <typename T>
-void check(const std::unique_ptr<groundupdb::IDatabase>& db, T v)
+void check(const std::unique_ptr<groundupdb::IDatabase> &db, T v)
 {
   std::string k("testkey");
   groundupdb::EncodedValue ev(v);
@@ -36,14 +48,14 @@ void check(const std::unique_ptr<groundupdb::IDatabase>& db, T v)
   REQUIRE(ev.length() == evr.length());
 }
 
-TEST_CASE("datatypes-memory", "[datatypes][memory]")
+TEST_CASE("datatypes-basic-memory", "[datatypes][basic][memory]")
 {
 
   // Story:-
   //   [Who]   As an app programmer
   //   [What]  I need to store and retrieve a variety of data types
   //   [Value] So I can persist data for later use in my app
-  SECTION("datatypes-memory")
+  SECTION("datatypes-intrinsic-memory")
   {
     std::string dbname("myemptydb");
     std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname));
@@ -78,4 +90,144 @@ TEST_CASE("datatypes-memory", "[datatypes][memory]")
     db->destroy();
   }
 
+}
+
+TEST_CASE("datatypes-container-memory", "[datatypes][container][memory]")
+{
+  // Story:-
+  //   [Who]   As an app programmer
+  //   [What]  I need to store and retrieve a variety of data types
+  //   [Value] So I can persist data for later use in my app
+  SECTION("datatypes-container-memory")
+  {
+    std::string dbname("myemptydb");
+    std::unique_ptr<groundupdb::IDatabase> db(groundupdb::GroundUpDB::createEmptyDB(dbname));
+
+    // We know we have been successful when:-
+    // 1. The retrieved value is the same as the stored value
+
+    const int total = 100;
+
+    // Containers from here (STL)
+    // https://en.cppreference.com/w/cpp/container
+
+    // A sequence
+    std::vector<std::string> list;
+    for (int i = 0;i < total;i++) {
+      list.push_back(std::to_string(i));
+    }
+    check(db, list);
+
+    std::array<int, 100> arr;
+    for (int i = 0; i < total; i++)
+    {
+      arr[i] = i;
+    }
+    check(db, arr);
+
+    std::deque<std::string> deque;
+    for (int i = 0; i < total; i++)
+    {
+      deque.insert(std::end(deque),std::to_string(i));
+    }
+    check(db, deque);
+
+    std::forward_list<std::string> fwl;
+    for (int i = 0; i < total; i++)
+    {
+      fwl.push_front(std::to_string(i));
+    }
+    check(db, fwl);
+
+    std::list<std::string> lst;
+    for (int i = 0; i < total; i++)
+    {
+      lst.push_back(std::to_string(i));
+    }
+    check(db, lst);
+
+    // B Associative
+    std::set<std::string> set;
+    for (int i = 0; i < total; i++)
+    {
+      set.insert(std::to_string(i));
+    }
+    check(db, set);
+
+    // std::map<int,std::string> map;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   map.emplace(i,std::to_string(i)); // template ctor
+    // }
+    // check(db, map);
+
+    std::multiset<std::string> mset;
+    for (int i = 0; i < total; i++)
+    {
+      mset.insert(std::to_string(i));
+    }
+    check(db, mset);
+
+    // std::multimap<int,std::string> mmap;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   mmap.emplace(i,std::to_string(i % (total / 2))); // template ctor
+    //   // ^^^ testing multiple instances of same key to be sure
+    // }
+    // check(db, mmap);
+
+    // C Unordered associative
+    std::unordered_set<std::string> uset;
+    for (int i = 0; i < total; i++)
+    {
+      uset.insert(std::to_string(i));
+    }
+    check(db, uset);
+
+    // std::unordered_map<int, std::string> umap;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   umap.emplace(i,std::to_string(i)); // template ctor
+    // }
+    // check(db, umap);
+
+    std::unordered_multiset<std::string> umset;
+    for (int i = 0; i < total; i++)
+    {
+      umset.insert(std::to_string(i));
+    }
+    check(db, umset);
+
+    // std::unordered_multimap<int,std::string> ummap;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   ummap.emplace(i,std::to_string(i % (total / 2))); // template ctor
+    //   // ^^^ testing multiple instances of same key to be sure
+    // }
+    // check(db, ummap);
+
+    // D Container adapters
+    // std::stack<std::string> stack;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   stack.push(std::to_string(i));
+    // }
+    // check(db, stack);
+
+    // std::queue<std::string> queue;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   queue.push(std::to_string(i));
+    // }
+    // check(db, queue);
+
+    // std::priority_queue<std::string> priority_queue;
+    // for (int i = 0; i < total; i++)
+    // {
+    //   priority_queue.push(std::to_string(i));
+    // }
+    // check(db, priority_queue);
+
+    db->destroy();
+  }
 }

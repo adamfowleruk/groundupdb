@@ -96,6 +96,8 @@
     "complex": "cpp",
     "cstdarg": "cpp",
     "cwctype": "cpp",
-    "memory_resource": "cpp"
+    "memory_resource": "cpp",
+    "forward_list": "cpp",
+    "queue": "cpp"
   }
 }

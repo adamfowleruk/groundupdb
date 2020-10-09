@@ -67,6 +67,95 @@ public:
 
 class EncodedValue;
 
+/** STL deduction traits **/
+template <typename T>
+struct has_const_iterator
+{
+private:
+  typedef char yes;
+  typedef struct
+  {
+    char array[2];
+  } no;
+
+  template <typename C>
+  static yes test(typename C::const_iterator *);
+  template <typename C>
+  static no test(...);
+
+public:
+  static const bool value = sizeof(test<T>(0)) == sizeof(yes);
+  typedef T type;
+};
+
+template <typename T>
+struct has_begin_end
+{
+  template <typename C>
+  static char (&f(typename std::enable_if<
+                  std::is_same<decltype(static_cast<typename C::const_iterator (C::*)() const>(&C::begin)),
+                               typename C::const_iterator (C::*)() const>::value,
+                  void>::type *))[1];
+
+  template <typename C>
+  static char (&f(...))[2];
+
+  template <typename C>
+  static char (&g(typename std::enable_if<
+                  std::is_same<decltype(static_cast<typename C::const_iterator (C::*)() const>(&C::end)),
+                               typename C::const_iterator (C::*)() const>::value,
+                  void>::type *))[1];
+
+  template <typename C>
+  static char (&g(...))[2];
+
+  static bool const beg_value = sizeof(f<T>(0)) == 1;
+  static bool const end_value = sizeof(g<T>(0)) == 1;
+};
+
+template <typename T>
+struct is_container : 
+  std::integral_constant<bool, 
+    has_const_iterator<T>::value && 
+    has_begin_end<T>::beg_value && 
+    has_begin_end<T>::end_value>
+{
+};
+
+// template <typename T>
+// struct has_keyed_begin_end
+// {
+//   template <typename C>
+//   static char (&f(typename std::enable_if<
+//                   std::is_same<decltype(static_cast<typename C::const_iterator (C::*)() const>(&C::begin)),
+//                                typename C::key_type (C::*)() const>::value,
+//                   void>::type *))[1];
+
+//   template <typename C>
+//   static char (&f(...))[2];
+
+//   template <typename C>
+//   static char (&g(typename std::enable_if<
+//                   std::is_same<decltype(static_cast<typename C::const_iterator (C::*)() const>(&C::end)),
+//                                typename C::key_type (C::*)() const>::value,
+//                   void>::type *))[1];
+
+//   template <typename C>
+//   static char (&g(...))[2];
+
+//   static bool const beg_value = sizeof(f<T>(0)) == 1;
+//   static bool const end_value = sizeof(g<T>(0)) == 1;
+// };
+
+// template <typename T>
+// struct is_keyed_container : 
+//   std::integral_constant<bool, 
+//     has_const_iterator<T>::value && 
+//     has_keyed_begin_end<T>::beg_value && 
+//     has_keyed_begin_end<T>::end_value>
+// {
+// };
+
 /**
  * @brief The HashedValue class is a Value type, intended to be copied cheaply.
  *
@@ -168,6 +257,24 @@ public:
     } else if constexpr (std::is_same_v<Bytes, decltype(v)>) {
       m_length = from.size();
       m_data = std::move(from);
+    } else if constexpr (is_container<decltype(v)>::value) {
+      // Convert contents to EncodedValue and serialise it
+      // TODO in future this will preserve its runtime type
+      Bytes data; 
+      // ^^^ can't reserve yet - may be dynamic type in container 
+      //     (We MUST do a deep copy)
+      for (auto iter = v.begin();iter != v.end();++iter) {
+        HashedValue hv(*iter); 
+        // ^^^ uses template functions, so a little recursion here
+        Bytes t = hv.data();
+        data.insert(std::end(data),t.begin(),t.end());
+        // https://stackoverflow.com/questions/2551775/appending-a-vector-to-a-vector
+      }
+      // TODO append EncodedValue(CPP,decltype<VT>,...,data) instead
+      m_data.insert(std::end(m_data),data.begin(),data.end());
+      m_length = m_data.size(); // can only know after inserts
+    // } else if constexpr (is_keyed_container<decltype(v)>::value) {
+    //   std::cout << "DECLTYPE keyed container" << std::endl;
     } else {
       throw std::runtime_error(typeid(v).name());
       // TODO we don't support it, fire off a compiler warning
