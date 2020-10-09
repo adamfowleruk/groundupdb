@@ -27,12 +27,13 @@ using namespace groundupdb;
 class DefaultQueryResult: public IQueryResult {
 public:
   DefaultQueryResult();
-  DefaultQueryResult(std::unique_ptr<std::unordered_set<std::string>> recordKeys);
+  DefaultQueryResult(KeySet&& recordKeys);
+  DefaultQueryResult(Set&& recordKeys);
   virtual ~DefaultQueryResult() = default;
 
-  const std::unique_ptr<std::unordered_set<std::string>> recordKeys();
+  const KeySet& recordKeys();
 private:
-  std::unique_ptr<std::unordered_set<std::string>> m_recordKeys;
+  KeySet m_recordKeys;
 };
 
 }

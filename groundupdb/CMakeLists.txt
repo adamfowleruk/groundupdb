@@ -5,7 +5,9 @@ include(GNUInstallDirs)
 set(HEADERS 
 	include/groundupdb.h
 	include/database.h
+	include/hashes.h
 	include/query.h
+	include/types.h
 	include/extensions/extdatabase.h
 	include/extensions/extquery.h
 	include/extensions/highwayhash.h
@@ -16,9 +18,11 @@ add_library(groundupdb
 	src/database.cpp
 	src/filekeyvaluestore.cpp
 	src/groundupdb.cpp
+	src/hashes.cpp
 	src/highwayhash.cpp
 	src/memorykeyvaluestore.cpp
 	src/query.cpp
+	src/types.cpp
 )
 set_target_properties(groundupdb PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

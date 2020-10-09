@@ -1,9 +1,3 @@
-#include "catch.hpp"
-
-#include "groundupdb/groundupdb.h"
-#include "groundupdb/groundupdbext.h"
-#include "highwayhash/highwayhash.h"
-
 /*
 See the NOTICE file
 distributed with this work for additional information
@@ -21,9 +15,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 */
+#include "catch.hpp"
+
+#include "groundupdb/groundupdb.h"
+#include "groundupdb/groundupdbext.h"
+#include "highwayhash/highwayhash.h"
+
 #include <unordered_map>
 
-TEST_CASE("Test unordered_map custom hashing algorithms","[set,get]") {
+TEST_CASE("Hashing","[set,get]") {
 
   // Story #7 on GitHub
   //   [Who]   As a database user
@@ -77,6 +77,26 @@ TEST_CASE("Test unordered_map custom hashing algorithms","[set,get]") {
 
     REQUIRE(m[key] == value);
     REQUIRE(m[k2] == v2);
+  }
+
+  SECTION("StringKeyHashing") {
+    groundupdb::Key<std::string> k1("somekey");
+    groundupdb::Key<std::string> k2("somekey");
+    groundupdb::Key<std::string> k3("someotherkey");
+    std::string buffer1("somekey");
+    std::string buffer2("somekey");
+    std::string buffer3("someotherkey");
+    groundupdbext::HighwayHash h1{1,2,3,4};
+    std::size_t hv1 = h1(buffer1);
+    std::size_t hv2 = h1(buffer2);
+    std::size_t hv3 = h1(buffer3);
+
+    REQUIRE(hv1 == hv2);
+    REQUIRE(hv1 != hv3);
+    REQUIRE(hv2 != hv3);
+    REQUIRE(8 == sizeof (hv1));
+    REQUIRE(8 == sizeof (hv2));
+    REQUIRE(8 == sizeof (hv3));
   }
 
 }

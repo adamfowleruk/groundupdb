@@ -24,6 +24,21 @@ The database aims to run on every platforms from an 8-bit microcontroller for ed
 
 The database is still young, but I hope to have a proof of concept on a multi-model database with query support that runs on multiple operating systems during the second half of 2020.
 
+### Current performance
+
+In embedded mode compiled for release these are the most recent performance results:-
+
+|Store Type|Operation|Qty|Measure|
+|---|---|---|---|
+|Memory|SET|1,619,040|Ops/sec|
+|Memory|GET|4,390,390|Ops/sec|
+|Memory|GET 1000 Keys in a bucket|1.124|ms
+|Memory|QUERY for keys in named bucket|0.719|ms
+|Memory cached File store (default)|SET|1,260.07|Ops/sec|
+|Memory cached File store (default)|GET|3,575,260|Ops/sec|
+|File store|SET|741.8|Ops/sec|
+|File store|GET|417,80.5|Ops/sec|
+
 ## Getting started
 
 You can either build with CMake or QtCreator. Either way executable and library files will be found under the relevant subdirectories for each target within the build folder.
@@ -87,6 +102,20 @@ cd groundupdb-tests
 ./groundupdb-tests
 ```
 
+### Running performance tests
+
+There are a set of standard baseline performance tests. 
+
+WARNING: These will thrash your hard drive when testing the FileKeyValueStore class.
+
+To run these tests execute the following from the groundupdb-tests build folder:-
+
+```sh
+./groundupdb-tests "Measure basic performance"
+```
+
+They will take around 3-5 minutes to run on a decent system.
+
 ## Features
 
 As the database is being created interactively with the community its
@@ -97,10 +126,10 @@ Currently it has these user features:-
 
 - (All keys below are unicode strings - you can even use smilies!)
 - (All set operations also allow the specification of which bucket to store the key within)
-- Set a key-value pair (string key->string value)
-- Set a key-value pair (string key->set-of-strings value)
-- Retrieve a string value for a string key
-- Retrieve a set-of-strings value for a string key
+- Set a key-value pair (Any key type (HashedKey class)->Any value type (EncodedValue class))
+- Set a key-value pair (Any key type (HashedKey class)->set-of-any value type (EncodedValue class))
+- Retrieve an EncodedValue for a HashedKey key
+- Retrieve a set-of-EncodedValue value for a HashedKey key
 - Query the database for all keys in a named (string) bucket
 
 And these administrative features:-
@@ -111,6 +140,7 @@ And these administrative features:-
 
 These data safety and storage features are present:-
 
+- Specify a memory-cached file store (default, safe data, balanced speed), pure in memory store (fastest, ephemeral data store like Redis), or pure file store (safest, slowest)
 - Strongly consistent file kv store (can be used as a data store or a query index store)
 - Strongly consistent in-memory kv store (can be used as a data store or a query index store, and as a read cache for an underlying key-value store, such as the file kv store)
 
