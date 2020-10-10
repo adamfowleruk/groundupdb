@@ -98,6 +98,7 @@
     "cwctype": "cpp",
     "memory_resource": "cpp",
     "forward_list": "cpp",
-    "queue": "cpp"
+    "queue": "cpp",
+    "valarray": "cpp"
   }
 }

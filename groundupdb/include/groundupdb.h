@@ -24,22 +24,26 @@ under the License.
 // i.e. NOT anything within include/extensions!
 
 #include "database.h"
+#include "hashes.h"
+#include "is_container.h"
 #include "query.h"
 #include "types.h"
 
 namespace groundupdb {
 
-class GroundUpDB
-{
-public:
+class GroundUpDB {
+ public:
   GroundUpDB();
 
   static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname);
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore);
-  static std::unique_ptr<IDatabase> createEmptyDB(std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore, std::unique_ptr<KeyValueStore>& idxStore);
+  static std::unique_ptr<IDatabase> createEmptyDB(
+      std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore);
+  static std::unique_ptr<IDatabase> createEmptyDB(
+      std::string& dbname, std::unique_ptr<KeyValueStore>& kvStore,
+      std::unique_ptr<KeyValueStore>& idxStore);
   static std::unique_ptr<IDatabase> loadDB(std::string& dbname);
 };
 
-}
+}  // namespace groundupdb
 
-#endif // GROUNDUPDB_H
+#endif  // GROUNDUPDB_H

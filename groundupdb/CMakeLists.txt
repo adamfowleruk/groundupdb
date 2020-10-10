@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 include(GNUInstallDirs)
 
 set(HEADERS 
@@ -7,6 +11,7 @@ set(HEADERS
 	include/database.h
 	include/hashes.h
 	include/query.h
+	include/is_container.h
 	include/types.h
 	include/extensions/extdatabase.h
 	include/extensions/extquery.h
@@ -34,11 +39,13 @@ target_include_directories(groundupdb
 	$<INSTALL_INTERFACE:include>
 )
 
+target_compile_features(groundupdb PRIVATE cxx_std_17)
+
 install(TARGETS groundupdb 
-	EXPORT groundupdb
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}  
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
-	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/groundupdb
+    EXPORT groundupdb
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}  
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} 
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/groundupdb
 )
 
 install(EXPORT groundupdb 
