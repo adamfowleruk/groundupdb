@@ -54,6 +54,7 @@ cd groundupdb
 git submodule update --init --recursive
 cd highwayhash
 make lib/libhighwayhash.a
+cd ..
 ```
 
 ### Building withCMake
