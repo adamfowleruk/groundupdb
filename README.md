@@ -43,30 +43,26 @@ In embedded mode compiled for release these are the most recent performance resu
 
 You can either build with CMake or QtCreator. Either way executable and library files will be found under the relevant subdirectories for each target within the build folder.
 
-### Download dependencies
+Where `cd groundupdb` appears below, this should always be read as 'move to the top level folder in this repo' :)
 
-The current build scripts assume the external HighwayHash repository exists at the same level as GroundUpDB. I.e. these folders should exist:-
+### Building Dependencies
 
-```sh
-ls ./myrepos
-> groundupdb
-> highwayhash
-```
-
-To install the HighwayHash library:-
+Currently Google's highwayhash, which is referenced herein as a sub-module, and must be built before GroundupDB as follows:
 
 ```sh
-cd ./myrepos
-git clone https://github.com/google/highwayhash.git
+cd groundupdb
+git submodule update --init --recursive
+cd highwayhash
+make lib/libhighwayhash.a
+cd ..
 ```
-
-You can now build GroundUpDB.
 
 ### Building withCMake
 
 ```sh
 cd groundupdb
-cmake --build ./build --config Debug --target all -- -j 14
+cmake -B ./build
+cmake --build ./build --config Debug --target all -j
 cd build
 ```
 
@@ -92,7 +88,7 @@ cd groundupdb-cli
 # Set a key
 ./groundupdb-cli -n mydb -s -k "My key" -v "My amazing value"
 # Get a key
-./groundupdb-cli -n mydb -s -k "My key"
+./groundupdb-cli -n mydb -g -k "My key"
 > My amazing value
 # List CLI usage and all other commands
 ./groundupdb-cli

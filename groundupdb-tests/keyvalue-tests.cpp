@@ -19,6 +19,8 @@ under the License.
 
 #include "groundupdb/groundupdb.h"
 
+#include <cstring>
+
 TEST_CASE("keyvalue","[setKeyValue,getKeyValue]") {
 
   // Story:-

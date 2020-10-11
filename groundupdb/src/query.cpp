@@ -70,8 +70,8 @@ DefaultQueryResult::DefaultQueryResult(Set&& recordKeys)
   : m_recordKeys(std::make_unique<std::unordered_set<HashedKey>>())
 {
   m_recordKeys->reserve(recordKeys->size());
-  for (auto it = recordKeys->begin(); it != recordKeys->end(); ) {
-    m_recordKeys->insert(HashedKey(std::move(recordKeys->extract(it++).value())));
+  for (auto it = recordKeys->begin(); it != recordKeys->end(); it++) {
+    m_recordKeys->insert(HashedKey(*it));
   }
 }
 

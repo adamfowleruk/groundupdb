@@ -22,6 +22,7 @@ under the License.
 #include "types.h"
 
 #include <string>
+#include <functional>
 
 namespace groundupdb {
 
