@@ -30,6 +30,30 @@ under the License.
 #include "catch.hpp"
 #include "groundupdb/groundupdb.h"
 
+class MyCustomType {
+public:
+  MyCustomType() = default;
+  MyCustomType(const std::string& toCopy) : m_storage(toCopy) { };
+  MyCustomType(const MyCustomType& toCopy) = default;
+  MyCustomType(MyCustomType&& toMove) = default;
+  ~MyCustomType() = default;
+
+  operator groundupdb::HashedValue() {
+    groundupdb::HashedValue hv(m_storage);
+
+    return std::move(hv);
+  }
+
+  operator groundupdb::EncodedValue() {
+    groundupdb::EncodedValue ev(m_storage);
+
+    return std::move(ev);
+  }
+
+private:
+  std::string m_storage;
+};
+
 template <typename T>
 void check(const std::unique_ptr<groundupdb::IDatabase> &db, T v) {
   std::string k("testkey");
@@ -104,6 +128,14 @@ TEST_CASE("datatypes-container-memory", "[datatypes][container][memory]") {
 
     // Containers from here (STL)
     // https://en.cppreference.com/w/cpp/container
+
+    // Simplest example - Bytes (the wrapped value inside HashedValue)
+    std::byte b = std::byte('b');
+    groundupdb::Bytes bytes; // aka std::vector<std::byte>
+    for (int i = 0; i < total; i++) {
+      bytes.push_back(b); // copy ctor
+    }
+    check(db, bytes);
 
     // A sequence
     std::vector<std::string> list;
@@ -211,6 +243,33 @@ TEST_CASE("datatypes-container-memory", "[datatypes][container][memory]") {
     //   priority_queue.push(std::to_string(i));
     // }
     // check(db, priority_queue);
+
+    db->destroy();
+  }
+}
+
+// TODO get this working. Hidden now so the feature can be finished
+TEST_CASE("datatypes-customtypes-memory", "[.][datatypes][customtypes][memory]") {
+  // Story:-
+  //   [Who]   As an app programmer
+  //   [What]  I need to store and retrieve a custom data type
+  //   [Value] So I can persist specialist POD classes in GroundUpDB efficiently
+  SECTION("datatypes-customtypes-memory") {
+    std::string dbname("myemptydb");
+    std::unique_ptr<groundupdb::IDatabase> db(
+        groundupdb::GroundUpDB::createEmptyDB(dbname));
+
+    // We know we have been successful when:-
+    // 1. The retrieved value is the same as the stored value
+    std::string str("An important string");
+    MyCustomType mct(str);
+
+    // groundupdb::HashedValue hv = mct; // conversion operator
+    // groundupdb::EncodedValue ev(hv); // conversion ctor
+
+    groundupdb::EncodedValue ev = static_cast<groundupdb::EncodedValue>(mct); // conversion operator
+
+    check(db, ev);
 
     db->destroy();
   }

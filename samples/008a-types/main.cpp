@@ -22,6 +22,30 @@ under the License.
 
 #include "groundupdb/groundupdb.h" // we want is_container.h, this is the only route
 
+class MyCustomType {
+public:
+  MyCustomType() = default;
+  MyCustomType(const std::string& toCopy) : m_storage(toCopy) { };
+  MyCustomType(const MyCustomType& toCopy) = default;
+  MyCustomType(MyCustomType&& toMove) = default;
+  ~MyCustomType() = default;
+
+  operator groundupdb::HashedValue() {
+    groundupdb::HashedValue hv(m_storage);
+
+    return std::move(hv);
+  }
+
+  operator groundupdb::EncodedValue() {
+    groundupdb::EncodedValue ev(m_storage);
+
+    return std::move(ev);
+  }
+
+private:
+  std::string m_storage;
+};
+
 int main()
 {
   std::pair<int,std::string> pair(1,"first");
@@ -58,4 +82,16 @@ int main()
   std::cout << "Is umap a pair?: " << groundupdb::is_pair<decltype(umap)>::value << std::endl;
   std::cout << "Is umap a container?: " << groundupdb::is_container<decltype(umap)>::value << std::endl;
   std::cout << "Is umap a keyed container?: " << groundupdb::is_keyed_container<decltype(umap)>::value << std::endl << std::endl;
+
+  std::string str("A string");
+  MyCustomType mct(str);
+  std::cout << "Type of mct iterator: " << typeid(mct).name() << std::endl;
+  std::cout << "Is mct constructible to EncodedValue?: " << std::is_constructible_v<groundupdb::EncodedValue,MyCustomType> << std::endl;
+  std::cout << "Is mct constructible to HashedValue?: " << std::is_constructible_v<groundupdb::HashedValue,MyCustomType> << std::endl;
+  std::cout << "Is EncodedValue constructible to mct?: " << std::is_constructible_v<MyCustomType,groundupdb::EncodedValue> << std::endl;
+  std::cout << "Is HashedValue constructible to mct?: " << std::is_constructible_v<MyCustomType,groundupdb::HashedValue> << std::endl;
+  std::cout << "Is mct convertible to EncodedValue?: " << std::is_convertible_v<MyCustomType,groundupdb::EncodedValue> << std::endl;
+  std::cout << "Is mct convertible to HashedValue?: " << std::is_convertible_v<MyCustomType,groundupdb::HashedValue> << std::endl;
+  std::cout << "Is mct explicitly convertible to EncodedValue?: " << groundupdb::is_explicitly_convertible<MyCustomType,groundupdb::EncodedValue>::value << std::endl;
+  std::cout << "Is mct explicitly convertible to HashedValue?: " << groundupdb::is_explicitly_convertible<MyCustomType,groundupdb::HashedValue>::value << std::endl;
 };

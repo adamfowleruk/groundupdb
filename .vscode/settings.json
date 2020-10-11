@@ -99,6 +99,7 @@
     "memory_resource": "cpp",
     "forward_list": "cpp",
     "queue": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "xxatomic": "cpp"
   }
 }
