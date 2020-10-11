@@ -45,11 +45,11 @@ TEST_CASE("Hashing","[set,get]") {
 
   SECTION("Previous hash doesn't affect next hash result") {
     groundupdbext::HighwayHash hfirst;
-    std::size_t rfirst = hfirst("OtherThing");
+    std::size_t rfirst = hfirst(std::string("OtherThing"));
 
     groundupdbext::HighwayHash h;
-    std::size_t r1 = h("Known");
-    std::size_t r2 = h("OtherThing");
+    std::size_t r1 = h(std::string("Known"));
+    std::size_t r2 = h(std::string("OtherThing"));
 
     REQUIRE(r1 != r2);
     REQUIRE(r1 != rfirst);
@@ -58,10 +58,10 @@ TEST_CASE("Hashing","[set,get]") {
 
   SECTION("Different seed keys produce different results for the same input") {
     groundupdbext::HighwayHash h1{1,2,3,4};
-    std::size_t r1 = h1("AThing");
+    std::size_t r1 = h1(std::string("AThing"));
 
     groundupdbext::HighwayHash h2{5,6,7,8};
-    std::size_t r2 = h2("AThing");
+    std::size_t r2 = h2(std::string("AThing"));
 
     REQUIRE(r1 != r2);
   }

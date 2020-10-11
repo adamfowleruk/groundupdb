@@ -19,6 +19,8 @@ under the License.
 #include "extensions/highwayhash.h"
 
 #include <algorithm>
+#include <type_traits>
+#include <typeinfo>
 
 namespace groundupdb {
 
@@ -87,19 +89,6 @@ HashedValue::HashedValue(EncodedValue&& from)
     m_hash(from.hash())
 {
   ;
-}
-
-HashedValue::HashedValue(std::string from)
-  : m_has_value(true),
-    m_data()
-{
-  m_length = from.length();
-  m_data.reserve(m_length);
-  std::transform(from.begin(), from.end(), std::back_inserter(m_data),
-                 [] (auto c) { return static_cast<std::byte>(c); });
-  // TODO use correct hasher for current database connection, with correct initialisation settings
-  DefaultHash h1{1,2,3,4};
-  m_hash = h1(from);
 }
 
 const Bytes

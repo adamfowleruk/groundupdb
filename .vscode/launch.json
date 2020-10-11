@@ -9,7 +9,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/groundupdb-tests/Debug/groundupdb-tests.exe",
-            "args": [],
+            "args": [" datatypes-customtypes-memory"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build/groundupdb-tests/Debug",
             "environment": [],
