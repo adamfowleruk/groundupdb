@@ -7,6 +7,7 @@ add_executable(groundupdb-tests
 	keyvalue-bug-tests.cpp
 	performance-tests.cpp
 	query-tests.cpp
+	datatypes-tests.cpp
 )
 
 include_directories(${groundupdb_SOURCE_DIR})
@@ -17,3 +18,5 @@ include_directories(${groundupdb_SOURCE_DIR}/highwayhash)
 #include_directories(${groundupdb_SOURCE_DIR}/../highwayhash)
 
 target_link_libraries(groundupdb-tests PRIVATE groundupdb)
+
+target_compile_features(groundupdb-tests PRIVATE cxx_std_17)

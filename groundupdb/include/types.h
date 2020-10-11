@@ -23,11 +23,13 @@ under the License.
 #include <vector>
 #include <string>
 #include <iostream>
-#include <fstream>
 #include <unordered_set>
 #include <functional>
+#include <numeric>
+#include <algorithm>
 
-// TODO find a way around including the below (its internals)
+// TODO find a way around including the below (they are internals)
+#include "is_container.h"
 #include "hashes.h"
 
 namespace groundupdb {
@@ -66,6 +68,12 @@ public:
 };
 
 class EncodedValue;
+
+template <class U, class T>
+struct is_explicitly_convertible
+{    
+  enum {value = std::is_constructible<T, U>::value && !std::is_convertible<U, T>::value};
+};
 
 /**
  * @brief The HashedValue class is a Value type, intended to be copied cheaply.
@@ -111,7 +119,126 @@ public:
   HashedValue(EncodedValue&& from);
 
   /** Standard type convenience constructors **/
-  HashedValue(std::string from);
+  /**
+ * Accept any basic type. Templated to minimise coding.
+ * Good basic reference on techniques used here: 
+ * https://www.internalpointers.com/post/quick-primer-type-traits-modern-cpp
+ */
+  template <typename VT> //, typename = std::enable_if_t<is_explicitly_convertible<VT,HashedValue>::value>>
+  HashedValue(VT from) : m_has_value(true), m_data(), m_length(0), m_hash(0)
+  {
+    // first remove reference
+    auto v = std::decay_t<VT>(from);
+    // second check if its a basic type and convert to bytes
+    if constexpr(std::is_same_v<std::string, decltype(v)>) {
+      //std::cout << "DECLTYPE std::string" << std::endl;
+      m_length = from.length();
+      m_data.reserve(m_length);
+      std::transform(from.begin(), from.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+                     
+    } else if constexpr (std::is_same_v<char *, decltype(v)>) {
+      //std::cout << "DECLTYPE char ptr" << std::endl;
+      std::string s(v);
+      m_length = s.length();
+      m_data.reserve(m_length);
+      std::transform(s.begin(), s.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+
+    } else if constexpr (std::is_same_v<const char*, decltype(v)>) {
+      //std::cout << "DECLTYPE char array" << std::endl;
+      std::string s(v);
+      m_length = s.length();
+      m_data.reserve(m_length);
+      std::transform(s.begin(), s.end(), std::back_inserter(m_data),
+                     [](auto c) { return static_cast<std::byte>(c); });
+
+    } else if constexpr(std::numeric_limits<VT>::is_integer) {
+      //std::cout << "DECLTYPE numeric" << std::endl;
+      m_length = sizeof(v) / sizeof(std::byte);
+      auto vcopy = v; // copy ready for modification
+      m_data.reserve(m_length);
+      for (auto i = std::size_t(0); i < m_length; i++)
+      {
+        // NOTE This implements little-endian conversion TODO do we want this?
+        m_data.push_back(static_cast<std::byte>((vcopy & 0xFF)));
+        vcopy = vcopy >> sizeof(std::byte);
+      }
+
+    } else if constexpr(std::is_floating_point_v<VT>) {
+      //std::cout << "DECLTYPE float" << std::endl;
+      m_length = sizeof(v) / sizeof(std::byte);
+      auto vcopy = v; // copy ready for modification
+      unsigned int asInt = *((int *)&vcopy);
+      m_data.reserve(m_length);
+      for (auto i = std::size_t(0); i < m_length; i++)
+      {
+        // NOTE This implements little-endian conversion TODO do we want this?
+        m_data.push_back(static_cast<std::byte>((asInt & 0xFF)));
+        asInt = asInt >> sizeof(std::byte);
+      }
+
+    } else if constexpr (std::is_same_v<Bytes, decltype(v)>) {
+      m_length = from.size();
+      m_data = std::move(from);
+
+    } else if constexpr (is_container<decltype(v)>::value) {
+      // Convert contents to EncodedValue and serialise it
+      // TODO in future this will preserve its runtime type
+      Bytes data; 
+      // ^^^ can't reserve yet - may be dynamic type in container 
+      //     (We MUST do a deep copy)
+      for (auto iter = v.begin();iter != v.end();++iter) {
+        HashedValue hv(*iter); 
+        // ^^^ uses template functions, so a little recursion here
+        Bytes t = hv.data();
+        data.insert(std::end(data),t.begin(),t.end());
+        // https://stackoverflow.com/questions/2551775/appending-a-vector-to-a-vector
+      }
+      // TODO append EncodedValue(CPP,decltype<VT>,...,data) instead
+      m_data.insert(std::end(m_data),data.begin(),data.end());
+      m_length = m_data.size(); // can only know after inserts
+    // } else if constexpr (is_keyed_container<decltype(v)>::value) {
+    //   std::cout << "DECLTYPE keyed container" << std::endl;
+
+    
+    } else if constexpr (is_keyed_container<decltype(v)>::value) {
+      // Convert contents to EncodedValue and serialise it
+      // TODO in future this will preserve its runtime type
+      Bytes data; 
+      // ^^^ can't reserve yet - may be dynamic type in container 
+      //     (We MUST do a deep copy)
+      for (auto iter = v.begin();iter != v.end();++iter) {
+        HashedValue hv(iter->second); 
+        // ^^^ uses template functions, so a little recursion here
+        Bytes t = hv.data();
+        data.insert(std::end(data),t.begin(),t.end());
+        // https://stackoverflow.com/questions/2551775/appending-a-vector-to-a-vector
+      }
+      // TODO append EncodedValue(CPP,decltype<VT>,...,data) instead
+      m_data.insert(std::end(m_data),data.begin(),data.end());
+      m_length = m_data.size(); // can only know after inserts
+      
+
+/*
+    } else if constexpr(std::is_convertible_v<decltype(v),HashedValue> && !std::is_same_v<decltype(v),HashedValue>) {
+      HashedValue hv = v; // calls type cast operator - https://www.cplusplus.com/doc/tutorial/typecasting/
+      m_has_value = hv.m_has_value;
+      m_length = hv.m_length;
+      m_data = std::move(hv.m_data);
+      m_hash = hv.m_hash;
+      return; // no need to recompute hash
+
+      */
+    } else {
+      throw std::runtime_error(typeid(v).name());
+      // TODO we don't support it, fire off a compiler warning
+      //static_assert(false, "Must be a supported type, or convertible to std::vector<std::byte>!");
+    }
+    // TODO use correct hasher for current database connection, with correct initialisation settings
+    DefaultHash h1{1, 2, 3, 4};
+    m_hash = h1(m_data);
+  }
 
   virtual ~HashedValue() = default;
   const Bytes data() const;
@@ -178,8 +305,12 @@ public:
     return *this;
   };
 
+  // convenience conversion
+  EncodedValue(const std::string& from) : m_has_value(true), m_type(Type::CPP), m_value(HashedValue{from}) {} 
+
   /** Conversion constuctors **/
-  EncodedValue(const std::string& from): m_has_value(true), m_type(Type::CPP), m_value(HashedValue{from}) {}
+  template<typename VT, typename = std::enable_if_t<!is_explicitly_convertible<VT,HashedValue>::value && !std::is_same_v<VT,HashedValue>>>
+  EncodedValue(const VT &from) : m_has_value(true), m_type(Type::CPP), m_value(HashedValue{from}) {}
 
   /** Class methods **/
   Type type() const { return m_type; }
