@@ -52,12 +52,11 @@ Currently Google's highwayhash, which is referenced herein as a sub-module, and 
 ```sh
 cd groundupdb
 git submodule update --init --recursive
-cd highwayhash
-make lib/libhighwayhash.a
-cd ..
 ```
 
-### Building withCMake
+Note: You don't need to build the highwayhash static library. This step was included in previous versions to ensure that the highwayhash would work on your environment before compiling GroundUpDB. Unfortunately, the highwayhash repository from Google has not been kept up to date and the whole thing doesn't compile on arm64 with Apple Silicon. Happily, the few header files we use directly from within GroundUpDB do still compile. In future versions of GroundUpDB I may add support for xxHash3 with different compile time options for which hashing library to use by default.
+
+### Building with CMake
 
 ```sh
 cd groundupdb
@@ -75,6 +74,8 @@ from here.
 ```sh
 cd ../build*
 ```
+
+Note: The QtCreator project files are deprecated and may be removed in a future version of GroundUpDB.
 
 ### Using the Command Line Interface (CLI)
 
@@ -168,7 +169,7 @@ to send me nice things on Patreon https://www.patreon.com/adamfowleruk then I'll
 
 ## License & Copyright
 
-All works are copyright Adam Fowler 2020 unless otherwise stated. Code is
+All works are copyright Adam Fowler 2020-2023 unless otherwise stated. Code is
 licensed under the Apache 2.0 license unless otherwise stated.
 
 See the NOTICE file for details on dependencies and their licenses.

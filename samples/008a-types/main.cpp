@@ -85,7 +85,7 @@ int main()
 
   std::string str("A string");
   MyCustomType mct(str);
-  std::cout << "Type of mct iterator: " << typeid(mct).name() << std::endl;
+  std::cout << "Type of mct: " << typeid(mct).name() << std::endl;
   std::cout << "Is mct constructible to EncodedValue?: " << std::is_constructible_v<groundupdb::EncodedValue,MyCustomType> << std::endl;
   std::cout << "Is mct constructible to HashedValue?: " << std::is_constructible_v<groundupdb::HashedValue,MyCustomType> << std::endl;
   std::cout << "Is EncodedValue constructible to mct?: " << std::is_constructible_v<MyCustomType,groundupdb::EncodedValue> << std::endl;
